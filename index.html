@@ -1,0 +1,112 @@
+<style>
+    @font-face {
+        font-family: "Segoe Fluent Icons";
+        src: url("Segoe Fluent Icons.ttf");
+    }
+    
+    @font-face {
+        font-family: "Segoe UI Variable";
+        src: url("SegoeUI-VF.ttf");
+    }
+
+    .fluent-navigation-view {
+        height: 100%;
+        left: 0;
+        padding: 10px;
+        position: fixed;
+        top: 0;
+        width: 200px;
+    }
+
+    .fluent-navigation-item {
+        background-color: transparent;
+        border: none;
+        border-radius: 3px;
+        font-family: "Segoe UI Variable";
+        font-weight: 500;
+        margin: 2px 0;
+        outline: none;
+        overflow: hidden;
+        padding: 10px 15px;
+        position: relative;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    .fluent-navigation-item::before {
+        background-color: #1976d2;
+        border-radius: 2px;
+        content: '';
+        display: none;
+        height: 55%;
+        left: 0;
+        position: absolute;
+        top: 22.5%;
+        width: 3px;
+    }
+
+    .fluent-navigation-subview {
+        max-height: 0;
+        overflow: hidden;
+    }
+
+    .fluent-navigation-subview .fluent-navigation-item {
+        padding-left: 35px;
+    }
+
+    .fluent-navigation-subview .fluent-navigation-item::before {
+        height: 50%;
+        left: 20px;
+        top: 25%;
+    }
+
+    .fluent-navigation-item:hover {
+        background-color: rgb(239, 239, 239);
+    }
+    
+    .fluent-navigation-item:hover::before,
+    .fluent-navigation-item.active:not(.has-sub-items)::before
+    {
+        display: block;
+    }
+
+    .fluent-navigation-item.has-sub-items {
+        padding-right: 50px;
+    }
+
+    .fluent-navigation-item.has-sub-items::after {
+        border-radius: 2px;
+        content: "\e972";
+        display: block;
+        font-family: 'Segoe Fluent Icons';
+        font-size: 15px;
+        height: 100%;
+        right: 10px;
+        position: absolute;
+        top: 10px;
+        width: 15px;
+    }
+
+    .fluent-navigation-item.has-sub-items.active::after {
+        content: '\e971';
+    }
+
+    .fluent-navigation-subview.active {
+        max-height: 100%;
+    }
+</style>
+
+<div class="fluent-navigation-view">
+    <button class="fluent-navigation-item">Aqua</button>
+    <button class="fluent-navigation-item">This is a very long navigation name that it's annoying now.</button>
+    <button class="fluent-navigation-item has-sub-items active">Hololive JP 3rd Generation Members</button>
+    <div class="fluent-navigation-subview active">
+        <button class="fluent-navigation-item">Pekora</button>
+        <button class="fluent-navigation-item">Marine</button>
+        <button class="fluent-navigation-item active">Noel</button>
+        <button class="fluent-navigation-item">Flair</button>
+        <button class="fluent-navigation-item">Rushia</button>
+    </div>
+</div>
