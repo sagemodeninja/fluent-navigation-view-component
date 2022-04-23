@@ -1,0 +1,91 @@
+.fluent-navigation-view-menu-items {
+    overflow-y: auto;
+    width: 100%;
+}
+
+.fluent-navigation-view-item {
+    color: #191919;
+    position: relative;
+    user-select: none;
+    width: 100%;
+}
+
+.fluent-navigation-view-item-button {
+    align-items: center;
+    background-color: transparent;
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: flex;
+    height: 36px;
+    margin: 4px;
+    padding: 0 3px;
+    position: relative;
+    width: calc(100% - 8px);
+}
+
+.fluent-navigation-view-item-button:hover,
+.fluent-navigation-view-item.active .fluent-navigation-view-item-button {
+    background-color: #eaeaea;
+}
+
+.fluent-navigation-view-item.active .fluent-navigation-view-item-button:hover {
+    background-color: #ededed;
+}
+
+.fluent-navigation-view-item:not(:first-child) .fluent-navigation-view-item-button {
+    margin-top: 0;
+}
+
+/* Indicator */
+.fluent-navigation-view-item.active .fluent-navigation-view-item-button::before {
+    background-color: #1976d2;
+    border-radius: 2px;
+    content: '';
+    display: block;
+    height: 16px;
+    left: 0;
+    position: absolute;
+    top: 10px;
+    width: 3px;
+}
+
+.fluent-navigation-view-item span {
+    margin: 0 9px;
+}
+
+/* Icons */
+.fluent-navigation-view-item-icon,
+.fluent-navigation-view-item-chevron {
+    font-family: 'Segoe Fluent Icons', sans-serif;
+    font-size: 15px;
+    text-rendering: optimizeLegibility;
+}
+
+/* Content */
+.fluent-navigation-view-item-content {
+    flex-grow: 1;
+    font-family: 'Segoe UI Variable', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Chevron */
+.fluent-navigation-view-item-chevron::before {
+    content: '\E70D';
+    font-size: 12px;
+}
+
+.fluent-navigation-view-item
+.fluent-navigation-view-menu-items
+.fluent-navigation-view-item-button {
+    padding-left: 27px;
+}
+
+.fluent-navigation-view-item
+.fluent-navigation-view-menu-items
+.fluent-navigation-view-item-button::before {
+    left: 24px !important;
+}
