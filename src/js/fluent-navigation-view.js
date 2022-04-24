@@ -1,3 +1,21 @@
+class SegoeFluentIcon {
+    constructor() {}
+
+    static buildCss() {
+        var css = "";
+        segoeFluentIcons.forEach(icon => {
+            css += `
+            .ms-Icon--${icon.name}::before {
+                content: '\\${icon.glyph}';
+            }
+
+            `;
+        });
+
+        return css;
+    }
+}
+
 class FluentNavigationView extends HTMLElement {
     constructor() {
         super();
@@ -15,6 +33,7 @@ class FluentNavigationView extends HTMLElement {
             }
         `;
 
+        this.selectionChangedEvent = new CustomEvent('selectionchanged');
         this.selectedItem;
         this.shadowRoot.append(style, template.content.cloneNode(true));
     }
@@ -34,6 +53,7 @@ class FluentNavigationView extends HTMLElement {
 
                 this.selectedItem?.removeAttribute('active');
                 this.selectedItem = item;
+                this.dispatchEvent(this.selectionChangedEvent);
             });
         });
     }
@@ -77,9 +97,10 @@ class FluentNavigationViewItem extends HTMLElement {
         this._button.setAttribute('class', 'button');
         
         // Icon
-        const icon = this._button.appendChild(document.createElement('span'));
-        icon.setAttribute('class', 'fluent-icons');
-        icon.textContent = this.getAttribute('icon');
+        if(this.hasAttribute('icon')) {
+            const icon = this._button.appendChild(document.createElement('span'));
+            icon.setAttribute('class', `ms-Icon ms-Icon--${this.getAttribute('icon')} icon`);
+        }
         
         // Content
         const content = this._button.appendChild(document.createElement('span'));
@@ -93,6 +114,13 @@ class FluentNavigationViewItem extends HTMLElement {
         // Styling
         const style = document.createElement('style');
         style.textContent = `
+            .ms-Icon {
+                font-family: 'Segoe Fluent Icons', sans-serif;
+                text-rendering: optimizeLegibility;
+            }
+
+            ${SegoeFluentIcon.buildCss()}
+
             :host {
                 max-height: 36px;
                 overflow: hidden;
@@ -145,12 +173,12 @@ class FluentNavigationViewItem extends HTMLElement {
                 margin: 0 9px;
             }
 
-            /* Icons */
-            .fluent-icons {
-                font-family: 'Segoe Fluent Icons', sans-serif;
-                text-rendering: optimizeLegibility;
+            /* Icon */
+            .icon {
+                line-height: 15px;
+                width: 15px;
             }
-            
+
             /* Content */
             .content {
                 flex-grow: 1;
@@ -174,15 +202,15 @@ class FluentNavigationViewItem extends HTMLElement {
             
             /* Sub menu items offset. */
             :host([sub-item]) .button {
-                padding-left: 27px;
+                padding-left: 39px;
             }
             
             :host([sub-item]) .button::before {
-                left: 24px;
+                left: 27px;
             }
         `;
 
-        this.NavigationEvent = new CustomEvent('navigation', {});
+        this.navigationEvent = new CustomEvent('navigation', {});
         this.attachEventListeners();
 
         this.shadowRoot.append(style, this._button, template.content.cloneNode(true));
@@ -195,7 +223,7 @@ class FluentNavigationViewItem extends HTMLElement {
         if(subItems.length > 0)
         {
             const chevron = this._button.appendChild(document.createElement('span'));
-            chevron.setAttribute('class', 'fluent-icons chevron');
+            chevron.setAttribute('class', 'ms-Icon chevron');
         }
         
         subItems.forEach(item => {
@@ -212,7 +240,7 @@ class FluentNavigationViewItem extends HTMLElement {
             else
                 this.setAttribute('expanded', '');
 
-            this.dispatchEvent(this.NavigationEvent);
+            this.dispatchEvent(this.navigationEvent);
         });
     }
 }

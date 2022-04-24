@@ -7,22 +7,33 @@
     <body>
         <fluent-navigation-view style="width: 280px;">
             <fluent-navigation-view-menu-items>
-                <fluent-navigation-view-item icon="&#xe80f;" content="Home"></fluent-navigation-view-item>
-                <fluent-navigation-view-item icon="&#xe77b;" content="Account">
+                <fluent-navigation-view-item icon="Home" content="Home"></fluent-navigation-view-item>
+                <fluent-navigation-view-item icon="Contact" content="Account">
                     <fluent-navigation-view-menu-items>
-                        <fluent-navigation-view-item icon="&#xe715;" content="Mail"></fluent-navigation-view-item>
-                        <fluent-navigation-view-item icon="&#xe787;" content="Calendar" active></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="Mail" content="Mail"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="Calendar" content="Calendar" active></fluent-navigation-view-item>
                     </fluent-navigation-view-menu-items>
                 </fluent-navigation-view-item>
-                <fluent-navigation-view-item icon="&#xe7c3;" content="Document options">
+                <fluent-navigation-view-item icon="Page" content="Document options">
                     <fluent-navigation-view-menu-items>
-                        <fluent-navigation-view-item icon="&#xe8f4;" content="Create new"></fluent-navigation-view-item>
-                        <fluent-navigation-view-item icon="&#xe8da;" content="Upload file"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="NewFolder" content="Create new"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="OpenLocal" content="Upload file"></fluent-navigation-view-item>
                     </fluent-navigation-view-menu-items>
                 </fluent-navigation-view-item>
             </fluent-navigation-view-menu-items>
         </fluent-navigation-view>
     </body>
 
-    <script src="src/js/script.js"></script>
+    <script>
+        const segoeFluentIcons = [
+            { name: 'Home', glyph: 'e80f' },
+            { name: 'Contact', glyph: 'e77b' },
+            { name: 'Mail', glyph: 'e715' },
+            { name: 'Calendar', glyph: 'e787' },
+            { name: 'Page', glyph: 'e7c3' },
+            { name: 'NewFolder', glyph: 'e8f4' },
+            { name: 'OpenLocal', glyph: 'e8da' },
+        ];
+    </script>
+    <script src="src/js/fluent-navigation-view.js"></script>
 </html>
