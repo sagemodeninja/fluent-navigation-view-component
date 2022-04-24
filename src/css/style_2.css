@@ -46,11 +46,6 @@
     background-color: #ededed;
 }
 
-.fluent-navigation-view-item:not(:first-child)
-.fluent-navigation-view-item-button {
-    margin-top: 0;
-}
-
 /* Indicator */
 .fluent-navigation-view-item.active
 .fluent-navigation-view-item-button::before {
@@ -65,7 +60,7 @@
     width: 3px;
 }
 
-.fluent-navigation-view-item span {
+.fluent-navigation-view-item-button span {
     margin: 0 9px;
 }
 
