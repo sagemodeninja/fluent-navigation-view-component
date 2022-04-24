@@ -1,19 +1,88 @@
+class FluentNavigationView extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({mode: 'open'});
+        
+        // Template/Slot
+        const template = document.createElement('template');
+        template.innerHTML = '<slot />';
+
+        // Styling
+        const style = document.createElement('style');
+        style.textContent = `
+            :host {
+                display: block;
+            }
+        `;
+
+        this.selectedItem;
+        this.shadowRoot.append(style, template.content.cloneNode(true));
+    }
+    
+    connectedCallback() {
+        var items = this.querySelectorAll('fluent-navigation-view-item');
+        items.forEach(item => {
+
+            if(item.hasAttribute('active')) {
+                this.selectedItem = item;
+                item.parentElement?.parentElement?.setAttribute('expanded', '');
+            }
+
+            item.addEventListener('navigation', () => {
+                if(this.selectedItem === item)
+                    return;
+
+                this.selectedItem?.removeAttribute('active');
+                this.selectedItem = item;
+            });
+        });
+    }
+}
+
+class FluentNavigationViewMenuItems extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({mode: 'open'});
+        
+        // Template/Slot
+        const template = document.createElement('template');
+        template.innerHTML = '<slot />';
+
+        // Styling
+        const style = document.createElement('style');
+        style.textContent = `
+            :host {
+                display: flex;
+                flex-direction: column;
+                font-size: 15px;
+                overflow-y: auto;
+                padding-top: 4px;
+                row-gap: 4px;
+                user-select: none;
+                width: 100%;
+            }
+        `;
+
+        this.shadowRoot.append(style, template.content.cloneNode(true));
+    }
+}
+
 class FluentNavigationViewItem extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
 
         // Button
-        this.button = document.createElement('div');
-        this.button.setAttribute('class', 'button');
+        this._button = document.createElement('div');
+        this._button.setAttribute('class', 'button');
         
         // Icon
-        const icon = this.button.appendChild(document.createElement('span'));
+        const icon = this._button.appendChild(document.createElement('span'));
         icon.setAttribute('class', 'fluent-icons');
         icon.textContent = this.getAttribute('icon');
         
         // Content
-        const content = this.button.appendChild(document.createElement('span'));
+        const content = this._button.appendChild(document.createElement('span'));
         content.setAttribute('class', 'content');
         content.textContent =  this.getAttribute('content');
         
@@ -31,7 +100,7 @@ class FluentNavigationViewItem extends HTMLElement {
                 width: 100%;
             }
 
-            :host(.expanded) {
+            :host([expanded]) {
                 max-height: 100%;
             }
 
@@ -51,16 +120,16 @@ class FluentNavigationViewItem extends HTMLElement {
             }
             
             .button:hover,
-            :host(.active) .button {
+            :host([active]) .button {
                 background-color: #eaeaea;
             }
             
-            :host(.active) .button:hover {
+            :host([active]) .button:hover {
                 background-color: #ededed;
             }
 
             /* Indicator */
-            :host(.active) .button::before {
+            :host([active]) .button::before {
                 background-color: #1976d2;
                 border-radius: 2px;
                 content: '';
@@ -99,6 +168,9 @@ class FluentNavigationViewItem extends HTMLElement {
                 font-size: 12px;
             }
 
+            :host([expanded]) .chevron::before {
+                content: '\\E70E';
+            }
             
             /* Sub menu items offset. */
             :host([sub-item]) .button {
@@ -110,28 +182,41 @@ class FluentNavigationViewItem extends HTMLElement {
             }
         `;
 
-        this.shadowRoot.append(style, this.button, template.content.cloneNode(true));
+        this.NavigationEvent = new CustomEvent('navigation', {});
+        this.attachEventListeners();
+
+        this.shadowRoot.append(style, this._button, template.content.cloneNode(true));
     }
     
     connectedCallback() {
+        var subItems = this.querySelectorAll('fluent-navigation-view-item');
+        
+        // Chevron
+        if(subItems.length > 0)
+        {
+            const chevron = this._button.appendChild(document.createElement('span'));
+            chevron.setAttribute('class', 'fluent-icons chevron');
+        }
+        
+        subItems.forEach(item => {
+            item.setAttribute('sub-item', '');
+        });
+    }
 
-        // When item has sub-items.
-        customElements.whenDefined('fluent-navigation-view-item')
-        .then(e => {
-            var subItems = this.querySelectorAll('fluent-navigation-view-item');
+    attachEventListeners() {
+        this._button.addEventListener('click', e => {
+            this.setAttribute('active', '');
             
-            // Chevron
-            if(subItems.length > 0)
-            {
-                const chevron = this.button.appendChild(document.createElement('span'));
-                chevron.setAttribute('class', 'fluent-icons chevron');
-            }
-            
-            subItems.forEach(item => {
-                item.setAttribute('sub-item', '');
-            });
+            if(this.hasAttribute('expanded'))
+                this.removeAttribute('expanded');
+            else
+                this.setAttribute('expanded', '');
+
+            this.dispatchEvent(this.NavigationEvent);
         });
     }
 }
 
+customElements.define('fluent-navigation-view', FluentNavigationView);
+customElements.define('fluent-navigation-view-menu-items', FluentNavigationViewMenuItems);
 customElements.define('fluent-navigation-view-item', FluentNavigationViewItem);
