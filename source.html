@@ -1,20 +1,50 @@
 <html>
     <head>
+        <title>Navigation View - Source</title>
+        <link rel="stylesheet" href="src/css/style.css">
         <link rel="stylesheet" href="src/fonts/segoe-fluent-icons/segoe-fluent-icons.css">
         <link rel="stylesheet" href="src/fonts/segoe-ui-variable/segoe-ui-variable.css">
-        <link rel="stylesheet" href="src/css/style.css">
     </head>
-</html>
+    <body>
+        <div style="width: 280px;">
+            <div class="fluent-navigation-view-menu-items">
+                <div class="fluent-navigation-view-item active">
+                    <div class="fluent-navigation-view-item-button">
+                        <span class="fluent-icons fluent-navigation-view-item-icon">&#xe80f;</span>
+                        <span class="fluent-navigation-view-item-content">Home</span>
+                    </div>
+                </div>
+                <div class="fluent-navigation-view-item expanded">
+                    <div class="fluent-navigation-view-item-button">
+                        <span class="fluent-icons fluent-navigation-view-item-icon">&#xe77b;</span>
+                        <span class="fluent-navigation-view-item-content">Account</span>
+                        <span class="fluent-icons fluent-navigation-view-item-chevron"></span>
+                    </div>
+                    <div class="fluent-navigation-view-menu-items">
+                        <div class="fluent-navigation-view-item active">
+                            <div class="fluent-navigation-view-item-button">
+                                <span class="fluent-icons fluent-navigation-view-item-icon">&#xe715;</span>
+                                <span class="fluent-navigation-view-item-content">Mail</span>
+                            </div>
+                        </div>
+                        <div class="fluent-navigation-view-item">
+                            <div class="fluent-navigation-view-item-button">
+                                <span class="fluent-icons fluent-navigation-view-item-icon">&#xe787;</span>
+                                <span class="fluent-navigation-view-item-content">Calendar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fluent-navigation-view-item">
+                    <div class="fluent-navigation-view-item-button">
+                        <span class="fluent-icons fluent-navigation-view-item-icon">&#xe7c3;</span>
+                        <span class="fluent-navigation-view-item-content">Document options that has very long content</span>
+                        <span class="fluent-icons fluent-navigation-view-item-chevron"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="fluent-navigation-view">
-    <button class="fluent-navigation-item">Aqua</button>
-    <button class="fluent-navigation-item">This is a very long navigation name that it's annoying now.</button>
-    <button class="fluent-navigation-item has-sub-items active">Hololive JP 3rd Generation Members</button>
-    <div class="fluent-navigation-subview active">
-        <button class="fluent-navigation-item">Pekora</button>
-        <button class="fluent-navigation-item">Marine</button>
-        <button class="fluent-navigation-item active">Noel</button>
-        <button class="fluent-navigation-item">Flair</button>
-        <button class="fluent-navigation-item">Rushia</button>
-    </div>
-</div>
+        <script src="src/js/script.js"></script>
+    </body>
+</html>
