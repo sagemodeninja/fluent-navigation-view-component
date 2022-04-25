@@ -21,21 +21,141 @@ class FluentNavigationView extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         
-        // Template/Slot
-        const template = document.createElement('template');
-        template.innerHTML = '<slot />';
-
         // Styling
         const style = document.createElement('style');
         style.textContent = `
-            :host {
-                display: block;
-            }
+        :host {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-height: 100%;
+            padding-left: 12px;
+            row-gap: 4px;
+            user-select: none;
+        }
+
+        /* TODO: Introduce collapsed mode. */
+        /*
+        :host([expanded]) {
+            max-height: 100%;
+        }
+        */
+
+        /* Button */
+        .button {
+            align-items: center;
+            background-color: transparent;
+            border-radius: 5px;
+            box-sizing: border-box;
+            color: #191919;
+            display: flex;
+            height: 36px;
+            margin: 0 4px;
+            min-height: 36px;
+            padding: 0 3px;
+            position: relative;
+            width: calc(100% - 8px);
+        }
+        
+        .button:hover {
+            background-color: #eaeaea;
+        }
+
+        .button:active {
+            color: #838383 !important;
+        }
+
+        .button span {
+            margin: 0 9px;
+        }
+
+        /* Icons */
+        .icon {
+            font-family: 'Segoe Fluent Icons', sans-serif;
+            font-size: 15px;
+            line-height: 15px;
+            text-rendering: optimizeLegibility;
+            width: 15px;
+        }
+
+        .nav-icon::before {
+            content: '\\e700'
+        }
+
+        .button:active .nav-icon {
+            transform: scaleX(.75);
+        }
+
+        .settings-icon::before {
+            content: '\\e713';
+        }
+
+        /* Content */
+        .content {
+            color: #191919;
+            flex-grow: 1;
+            font-family: 'Segoe UI Variable', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pane-title {
+            font-weight: 600;
+        }
+
+        .menu-items-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
         `;
+
+        // Header
+        const button = document.createElement('div');
+        button.setAttribute('class', 'button');
+        
+        // Icon
+        const icon = button.appendChild(document.createElement('span'));
+        icon.setAttribute('class', `ms-Icon nav-icon icon`);
+        
+        // Content
+        const content = button.appendChild(document.createElement('span'));
+        content.setAttribute('class', 'content pane-title');
+        content.textContent =  this.getAttribute('pane-title');
+        
+        // Template/Slot
+        const menuItemsContainer = document.createElement('div');
+        
+        const template = document.createElement('template');
+        template.innerHTML = '<slot />';
+
+        menuItemsContainer.setAttribute('class', 'menu-items-container');
+        menuItemsContainer.appendChild(template.content.cloneNode(true));
 
         this.selectionChangedEvent = new CustomEvent('selectionchanged');
         this.selectedItem;
-        this.shadowRoot.append(style, template.content.cloneNode(true));
+        this.shadowRoot.append(style, button, menuItemsContainer);
+
+        var attr = eval(this.getAttribute('is-settings-visible'));
+        if(attr === undefined || attr) {
+            // Settings item
+            const settingsItem = document.createElement('div');
+            settingsItem.setAttribute('class', 'button settings-button');
+            
+            // Settings icon
+            const settingsIcon = settingsItem.appendChild(document.createElement('span'));
+            settingsIcon.setAttribute('class', `ms-Icon settings-icon icon`);
+            
+            // Settings content
+            const settingsContent = settingsItem.appendChild(document.createElement('span'));
+            settingsContent.setAttribute('class', 'content');
+            settingsContent.textContent =  'Settings';
+
+            this.shadowRoot.appendChild(settingsItem);
+        }
     }
     
     connectedCallback() {
@@ -76,7 +196,6 @@ class FluentNavigationViewMenuItems extends HTMLElement {
             flex-direction: column;
             font-size: 15px;
             overflow-y: auto;
-            padding-top: 4px;
             row-gap: 4px;
             user-select: none;
             width: 100%;
@@ -164,8 +283,11 @@ class FluentNavigationViewItem extends HTMLElement {
         ${SegoeFluentIcon.buildCss()}
 
         :host {
+            display: flex;
+            flex-direction: column;
             max-height: 36px;
             overflow: hidden;
+            row-gap: 4px;
             user-select: none;
             width: 100%;
         }
@@ -184,6 +306,7 @@ class FluentNavigationViewItem extends HTMLElement {
             display: flex;
             height: 36px;
             margin: 0 4px;
+            min-height: 36px;
             padding: 0 3px;
             position: relative;
             width: calc(100% - 8px);
