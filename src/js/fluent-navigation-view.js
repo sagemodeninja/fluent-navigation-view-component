@@ -41,7 +41,7 @@ const navigationViewStyles = `
     width: 59px;
 }
 
-:host([expanded]) .navigation-pane {
+:host(.expanded) .navigation-pane {
     width: 280px;
 }
 
@@ -156,15 +156,10 @@ ${SegoeFluentIcon.buildCss()}
 :host {
     display: flex;
     flex-direction: column;
-    max-height: 36px;
     overflow: hidden;
     row-gap: 4px;
     user-select: none;
     width: 100%;
-}
-
-:host([expanded]) {
-    max-height: 100%;
 }
 
 /* Button */
@@ -226,6 +221,7 @@ ${SegoeFluentIcon.buildCss()}
     font-size: 14px;
     font-weight: 400;
     overflow: hidden;
+    padding-right: 20px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -241,11 +237,11 @@ ${SegoeFluentIcon.buildCss()}
 }
 
 /* Sub menu items offset. */
-:host([sub-item]) .button {
+:host(.with-offset) .button {
     padding-left: 39px;
 }
 
-:host([sub-item]) .button::before {
+:host(.with-offset) .button::before {
     left: 27px;
 }
 `;
@@ -257,6 +253,7 @@ ${SegoeFluentIcon.buildCss()}
     <div class='button'>
         <span class='ms-Icon icon'></span>
         <span class='content'></span>
+        <span class='ms-Icon chevron'></span>
     </div>
     <slot></slot>
     `;
@@ -267,10 +264,17 @@ ${SegoeFluentIcon.buildCss()}
 
             this.attachShadow({mode: 'open'});
             this.shadowRoot.append(template.content.cloneNode(true));
-    
+            
+            this._parentView = this.closest('fluent-navigation-view');
+            this._parentMenu = this.closest('fluent-navigation-view-item fluent-navigation-view-menu-items');
+            this._subMenu = this.querySelector('fluent-navigation-view-menu-items');
             this._button = this.shadowRoot.querySelector('div.button');
+            this._chevron = this.shadowRoot.querySelector('.chevron');
     
-            this.navigationEvent = new CustomEvent('navigation', {});
+            this._toggleOffset = this._toggleOffset.bind(this);
+
+            this.invokeEvent = new CustomEvent('invoke');
+            this.navigationEvent = new CustomEvent('navigation');
         }
         
         connectedCallback() {
@@ -280,24 +284,36 @@ ${SegoeFluentIcon.buildCss()}
             const content = this._button.querySelector('span.content');
             content.textContent = this.getAttribute('content');
 
-            var subItems = this.querySelectorAll('fluent-navigation-view-item');
-            
-            // Chevron
-            if(subItems.length > 0)
-            {
-                const chevron = this._button.appendChild(document.createElement('span'));
-                chevron.setAttribute('class', 'ms-Icon chevron');
+            if(this._parentMenu !== null) {
+                this._toggleOffset();
+                this._parentView.addEventListener('invoked', this._toggleOffset);
             }
             
-            subItems.forEach(item => {
-                item.setAttribute('sub-item', '');
-            });
+            // Chevron
+            this._chevron.style.display = this._subMenu !== null ? "block" : "none";
 
-            this._button.addEventListener('click', () => {
+            this._button.addEventListener('click', e => {
                 this.setAttribute('active', '');
-                this.toggleAttribute('expanded');
+
+                if(this._parentView)
+                {
+                    var activeMenu = this._parentView.activeMenuItem;
+                    var parentIsExpanded = this._parentView.classList.contains('expanded');
+    
+                    if(!parentIsExpanded && this._parentMenu === null && (this._subMenu === null || activeMenu !== this._subMenu)) {
+                        activeMenu?.classList?.remove('expanded');
+                    }
+    
+                    e.stopPropagation();
+                }
+                
+                this.dispatchEvent(this.invokeEvent);
                 this.dispatchEvent(this.navigationEvent);
             });
+        }
+
+        _toggleOffset() {
+            this.classList.toggle('with-offset', this._parentView.classList.contains('expanded'));
         }
     }
     
@@ -342,8 +358,19 @@ ${SegoeFluentIcon.buildCss()}
             this._paneTitle = this.shadowRoot.querySelector('span.pane-title');
             this._settingsItem = this.shadowRoot.querySelector('.settings-item');
 
+            this._invokedEvent = new CustomEvent('invoked');
             this._selectionChangedEvent = new CustomEvent('selectionchanged');
+            
+            this._activeMenuItem;
             this._selectedItem;
+        }
+
+        get activeMenuItem() {
+            return this._activeMenuItem;
+        }
+
+        set activeMenuItem(value) {
+            this._activeMenuItem = value;
         }
 
         connectedCallback() {
@@ -357,21 +384,27 @@ ${SegoeFluentIcon.buildCss()}
             this._settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
 
             // Event listeners
-            this._navButton.addEventListener('click', () => this.toggleAttribute('expanded'));
-            this._settingsItem.addEventListener('navigation', () => this.navigate(this._settingsItem));
+            this._navButton.addEventListener('click', () => {
+                this.classList.toggle('expanded');
+                this.dispatchEvent(this._invokedEvent);
+            });
+
+            this._settingsItem.addEventListener('navigation', () => this._navigate(this._settingsItem));
 
             const items = this.querySelectorAll('fluent-navigation-view-item');
             items.forEach(item => {
                 if(item.hasAttribute('active')) {
                     this._selectedItem = item;
+
+                    // TODO: No longer used or different implementation.
                     item.parentElement?.parentElement?.setAttribute('expanded', '');
                 }
     
-                item.addEventListener('navigation', () => this.navigate(item));
+                item.addEventListener('navigation', () => this._navigate(item));
             });
         }
 
-        navigate(item) {
+        _navigate(item) {
             if(this._selectedItem === item)
                 return;
 
@@ -389,21 +422,39 @@ ${SegoeFluentIcon.buildCss()}
     template.innerHTML = `
     <style>
     :host {
+        background-color: #f2f2f2;
+        border-radius: 5px;
         display: flex;
         flex-direction: column;
         font-size: 15px;
-        overflow-y: auto;
         row-gap: 4px;
         user-select: none;
         width: 100%;
     }
 
-    ::slotted(fluent-navigation-view-item-header) {
-        /*display: none;*/
+    :host(.sub-menu-item:not(.expanded)) {
+        display: none;
     }
+
+    :host(.compact-mode) {
+        border: solid 1px #e5e5e5;
+        left: 64px;
+        padding: 8px 0;
+        position: fixed;
+        width: auto;
+        z-index: 1;
+    }
+
+    /*
+    :host(.expanded) {
+        display: flex;
+    }
+    */
     </style>
     <slot></slot>
     `;
+
+    var activeMenuItem;
 
     class FluentNavigationViewMenuItems extends HTMLElement {
         constructor() {
@@ -411,8 +462,40 @@ ${SegoeFluentIcon.buildCss()}
             
             this.attachShadow({mode: 'open'});
             this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+            this._toggleMode = this._toggleMode.bind(this);
+
+            this._parentView = this.closest('fluent-navigation-view');
+            this._parentItem = this.closest('fluent-navigation-view-item');
+        }
+
+        connectedCallback() {
+            if(this._parentItem === null)
+                return;
+
+            this.classList.add('sub-menu-item');
+            this._toggleMode();
+
+            this._parentView.addEventListener('invoked', this._toggleMode);
+            this._parentItem.addEventListener('invoke', () => {
+                const expanded = this.classList.toggle('expanded');
+                this._parentView.activeMenuItem = activeMenuItem = expanded && this.classList.contains('compact-mode') ? this : null;
+            });
+
+            this.addEventListener('click', e => e.stopPropagation());
+        }
+
+        _toggleMode() {
+            var compactMode = !this._parentView.classList.contains('expanded');
+            
+            this.classList.toggle('compact-mode', compactMode);
+
+            if(compactMode)
+                this.classList.toggle('expanded', false);
         }
     }
+
+    window.addEventListener('click', e => activeMenuItem?.classList?.remove('expanded'));
 
     customElements.define('fluent-navigation-view-menu-items', FluentNavigationViewMenuItems);
 })();
@@ -424,11 +507,15 @@ ${SegoeFluentIcon.buildCss()}
     :host {
         align-items: center;
         box-sizing: border-box;
-        display: flex;
+        display: none;
         height: 36px;
         padding-left: 12px;
         user-select: none;
         width: 100%;
+    }
+
+    :host(.visible) {
+        display: flex;
     }
 
     :host .content {
@@ -452,11 +539,21 @@ ${SegoeFluentIcon.buildCss()}
             this.attachShadow({mode: 'open'});
             this.shadowRoot.appendChild(template.content.cloneNode(true));
 
+            this._toggleVisibility = this._toggleVisibility.bind(this);
+
+            this._parentView = this.closest('fluent-navigation-view');
             this._content = this.shadowRoot.querySelector('span.content');
         }
 
         connectedCallback() {
             this._content.textContent = this.getAttribute('content');
+
+            this._toggleVisibility();
+            this._parentView.addEventListener('invoked', this._toggleVisibility);
+        }
+
+        _toggleVisibility() {
+            this.classList.toggle('visible', this._parentView.classList.contains('expanded'));
         }
     }
     
