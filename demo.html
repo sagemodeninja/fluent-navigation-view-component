@@ -1,33 +1,52 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Navigation View - Demo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="src/fonts/segoe-fluent-icons/segoe-fluent-icons.css">
         <link rel="stylesheet" href="src/fonts/segoe-ui-variable/segoe-ui-variable.css">
+        <style>
+            * {
+                font-family: 'Segoe UI Variable Text';
+            }
+        </style>
     </head>
     <body>
-        <fluent-navigation-view id="navigation_view" header="Web Component" pane-title="Pane Title" always-show-header is-settings-visible pane-display-mode="leftcompact">
+        <fluent-navigation-view id="navigation_view" header="Web Component" pane-display-mode="left" always-show-header is-settings-visible>
             <fluent-navigation-view-menu-items>
-                <fluent-navigation-view-item icon="Home" content="Home"></fluent-navigation-view-item>
+                <fluent-navigation-view-item icon="Home" content="Home" tag="Home"></fluent-navigation-view-item>
                 <fluent-navigation-view-item-header content="Actions"></fluent-navigation-view-item-header>
-                <fluent-navigation-view-item icon="Contact" content="Account">
+                <fluent-navigation-view-item icon="Contact" content="Account" tag="Account">
                     <fluent-navigation-view-menu-items>
-                        <fluent-navigation-view-item icon="Mail" content="Mail"></fluent-navigation-view-item>
-                        <fluent-navigation-view-item icon="Calendar" content="Calendar" active></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="Mail" content="Mail" tag="Mail"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="Calendar" content="Calendar" tag="Calendar" active></fluent-navigation-view-item>
                     </fluent-navigation-view-menu-items>
                 </fluent-navigation-view-item>
-                <fluent-navigation-view-item icon="Page" content="Document options">
+                <fluent-navigation-view-item icon="Page" content="Document options" tag="Document options">
                     <fluent-navigation-view-menu-items>
-                        <fluent-navigation-view-item icon="NewFolder" content="Create new"></fluent-navigation-view-item>
-                        <fluent-navigation-view-item icon="OpenLocal" content="Upload file"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="NewFolder" content="Create new" tag="Create new"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="OpenLocal" content="Upload file" tag="Upload file"></fluent-navigation-view-item>
                     </fluent-navigation-view-menu-items>
                 </fluent-navigation-view-item>
             </fluent-navigation-view-menu-items>
 
             <div slot="content-frame">
-                <div style="background-color: orange; width: 200px; height: 150px;"></div>
-                <div style="background-color: greenyellow; width: 200px; height: 150px;"></div>
-                <p id="debug"></p>
+                <div style="padding: 10px;">
+                    <div>
+                        <input type="radio" name="paneDisplayMode" value="leftcompact" id="leftcompact">
+                        <label for="leftcompact">LeftCompact (Default)</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="paneDisplayMode" value="left" id="left" checked>
+                        <label for="left">Left</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="paneTitle">Pane Title:</label>
+                    <input type="text" name="paneTitle" id="paneTitle" placeholder="Pane Title">
+                </div>
+                <button id="toggle_header">Toggle Header: TRUE</button>
+                <button id="toggle_settings">Toggle Settings: TRUE</button>
             </div>
         </fluent-navigation-view>
     </body>
@@ -54,7 +73,48 @@
             debug = document.querySelector('#debug');
             
             navigationView.addEventListener('selectionchanged', e => {
-                debug.textContent += 'new content.';
+                navigationView.setAttribute('header', e.detail.args.selectedItem.tag);
+            });
+
+            const displayModes = document.querySelectorAll('input[name=paneDisplayMode');
+            const paneTitleIpt = document.querySelector('input[name=paneTitle]');
+            const toggleHeaderBtn = document.querySelector('#toggle_header');
+            const toggleSettingsBtn = document.querySelector('#toggle_settings');
+            
+            var alwaysShowHeader = true;
+            var isSettingsVisible = true;
+
+            // Pane display mode.
+            for (const option of displayModes)
+            {
+                option.addEventListener('change', () => {
+                    for (const option of displayModes)
+                    {
+                        if(option.checked)
+                        {
+                            navigationView.setAttribute('pane-display-mode', option.value);
+                            break;
+                        }
+                    }
+                });
+            }
+
+            paneTitleIpt.addEventListener('input', () => {
+                navigationView.setAttribute('pane-title', paneTitleIpt.value);
+            });
+
+            toggleHeaderBtn.addEventListener('click', () => {
+                alwaysShowHeader = !alwaysShowHeader;
+
+                toggleHeaderBtn.innerHTML = `Toggle Header: ${alwaysShowHeader.toString().toUpperCase()}`;
+                navigationView.toggleAttribute('always-show-header', alwaysShowHeader);
+            });
+
+            toggleSettingsBtn.addEventListener('click', () => {
+                isSettingsVisible = !isSettingsVisible;
+
+                toggleSettingsBtn.innerHTML = `Toggle Header: ${isSettingsVisible.toString().toUpperCase()}`;
+                navigationView.toggleAttribute('is-settings-visible', isSettingsVisible);
             });
         });
     </script>
