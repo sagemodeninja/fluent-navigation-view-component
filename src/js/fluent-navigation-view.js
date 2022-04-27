@@ -32,17 +32,36 @@ const navigationViewStyles = `
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-height: 100%;
+    height: calc(100% - 2px);
+    margin: 1px 0 1px 1px;
+    max-height: calc(100% - 2px); /* TODO: Check if important. */
     padding: 4px 0;
     padding-left: 12px;
     row-gap: 4px;
     user-select: none;
     width: 59px;
+    z-index: 1;
 }
 
 :host(.expanded) .navigation-pane {
     width: 280px;
+}
+
+:host(.leftcompact-mode) .navigation-pane {
+    left: 0;
+    position: absolute;
+    top: 0;
+}
+
+:host(.leftcompact-mode.expanded) .navigation-pane {
+    background-color: rgba(238, 238, 238, 0.76);
+    -webkit-backdrop-filter: saturate(180%) blur(100px);
+    backdrop-filter: saturate(180%) blur(100px);
+    border: solid 1px #e5e5e5;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 3px 0;
+    padding-left: 11px;
 }
 
 /* Button */
@@ -51,7 +70,7 @@ const navigationViewStyles = `
     background-color: transparent;
     border-radius: 5px;
     box-sizing: border-box;
-    color: #191919;
+    color: #1b1b1b;
     display: flex;
     height: 36px;
     margin: 0 4px;
@@ -61,7 +80,7 @@ const navigationViewStyles = `
 }
 
 .button:hover {
-    background-color: #e9e9e9;
+    background-color: rgba(231, 231, 231, 0.78);
 }
 
 .button:active {
@@ -91,7 +110,6 @@ const navigationViewStyles = `
 
 /* Pane title */
 .pane-title {
-    color: #191919;
     flex-grow: 1;
     font-family: 'Segoe UI Variable Text', sans-serif;
     font-size: 14px;
@@ -116,6 +134,10 @@ const navigationViewStyles = `
     position: relative;
 }
 
+:host(.leftcompact-mode) .content-frame {
+    margin-left: 60px;
+}
+
 .content {
     background-color: #fff;
     border-left: solid 1px #e5e5e5;
@@ -132,6 +154,7 @@ const navigationViewStyles = `
 }
 
 .content-header {
+    margin-bottom: 10px;
     padding-top: 35px;
     padding-left: 40px;
 }
@@ -168,7 +191,7 @@ ${SegoeFluentIcon.buildCss()}
     background-color: transparent;
     border-radius: 5px;
     box-sizing: border-box;
-    color: #191919;
+    color: #1b1b1b;
     display: flex;
     height: 36px;
     margin: 0 4px;
@@ -179,15 +202,15 @@ ${SegoeFluentIcon.buildCss()}
 
 .button:hover,
 :host([active]) .button {
-    background-color: #e9e9e9;
+    background-color: rgba(156, 156, 156, 0.1);
 }
 
 :host([active]) .button:hover {
-    background-color: #ededed;
+    background-color: rgba(160, 160, 160, 0.06);
 }
 
 .button:active {
-    color: #838383 !important;
+    color: rgba(27, 27, 27, 0.49) !important;
 }
 
 /* Indicator */
@@ -276,6 +299,10 @@ ${SegoeFluentIcon.buildCss()}
             this.invokeEvent = new CustomEvent('invoke');
             this.navigationEvent = new CustomEvent('navigation');
         }
+
+        get isParent() {
+            return this._subMenu !== null;
+        }
         
         connectedCallback() {
             const icon = this._button.querySelector('span.icon');
@@ -300,7 +327,7 @@ ${SegoeFluentIcon.buildCss()}
                     var activeMenu = this._parentView.activeMenuItem;
                     var parentIsExpanded = this._parentView.classList.contains('expanded');
     
-                    if(!parentIsExpanded && this._parentMenu === null && (this._subMenu === null || activeMenu !== this._subMenu)) {
+                    if(!parentIsExpanded && (this._subMenu === null || activeMenu !== this._subMenu)) {
                         activeMenu?.classList?.remove('expanded');
                     }
     
@@ -353,14 +380,12 @@ ${SegoeFluentIcon.buildCss()}
             this.shadowRoot.appendChild(template.content.cloneNode(true));
 
             this._header = this.shadowRoot.querySelector('.content-header');
+            this._pane = this.shadowRoot.querySelector('.navigation-pane');
             this._title = this.shadowRoot.querySelector('.content-title');
             this._navButton = this.shadowRoot.querySelector('.nav-button');
             this._paneTitle = this.shadowRoot.querySelector('span.pane-title');
             this._settingsItem = this.shadowRoot.querySelector('.settings-item');
 
-            this._invokedEvent = new CustomEvent('invoked');
-            this._selectionChangedEvent = new CustomEvent('selectionchanged');
-            
             this._activeMenuItem;
             this._selectedItem;
         }
@@ -373,7 +398,14 @@ ${SegoeFluentIcon.buildCss()}
             this._activeMenuItem = value;
         }
 
+        get selectedItem() {
+            return this._selectedItem;
+        }
+
         connectedCallback() {
+            const paneDisplayMode = this.getAttribute('pane-display-mode') ?? 'leftcompact';
+            this.classList.add(`${paneDisplayMode.toLowerCase()}-mode`);
+
             this._title.textContent = this.getAttribute('header');
             this._paneTitle.textContent = this.getAttribute('pane-title');
             
@@ -384,9 +416,11 @@ ${SegoeFluentIcon.buildCss()}
             this._settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
 
             // Event listeners
-            this._navButton.addEventListener('click', () => {
+            this._navButton.addEventListener('click', e => {
                 this.classList.toggle('expanded');
-                this.dispatchEvent(this._invokedEvent);
+                this.dispatchEvent(new CustomEvent('invoked'));
+
+                e.stopPropagation();
             });
 
             this._settingsItem.addEventListener('navigation', () => this._navigate(this._settingsItem));
@@ -402,15 +436,42 @@ ${SegoeFluentIcon.buildCss()}
     
                 item.addEventListener('navigation', () => this._navigate(item));
             });
+
+            this._pane.addEventListener('click', e => e.stopPropagation());
+
+            window.addEventListener('click', () => {
+                this._dismissPane();
+                this._activeMenuItem?.classList?.remove('expanded');
+            });
         }
 
         _navigate(item) {
+            if(!item.isParent)
+                this._dismissPane();
+
             if(this._selectedItem === item)
                 return;
 
             this._selectedItem?.removeAttribute('active');
             this._selectedItem = item;
-            this.dispatchEvent(this._selectionChangedEvent);
+
+            const eventDetails = {
+                sender: this,
+                args: {
+                    selectedItem: this.item
+                }
+            };
+            this.dispatchEvent(new CustomEvent('selectionchanged', { detail: eventDetails }));
+        }
+
+        _dismissPane() {
+            const classes = this.classList;
+
+            if(classes.contains('leftcompact-mode') && classes.contains('expanded'))
+            {
+                this.classList.remove('expanded');
+                this.dispatchEvent(new CustomEvent('invoked'));
+            }
         }
     }
     
@@ -422,7 +483,6 @@ ${SegoeFluentIcon.buildCss()}
     template.innerHTML = `
     <style>
     :host {
-        background-color: #f2f2f2;
         border-radius: 5px;
         display: flex;
         flex-direction: column;
@@ -432,12 +492,8 @@ ${SegoeFluentIcon.buildCss()}
         width: 100%;
     }
 
-    :host(.sub-menu-item:not(.expanded)) {
-        display: none;
-    }
-
     :host(.compact-mode) {
-        border: solid 1px #e5e5e5;
+        border: solid 1px rgba(152, 152, 152, 0.25);
         left: 64px;
         padding: 8px 0;
         position: fixed;
@@ -445,16 +501,19 @@ ${SegoeFluentIcon.buildCss()}
         z-index: 1;
     }
 
-    /*
-    :host(.expanded) {
-        display: flex;
+    :host(.sub-menu-item:not(.expanded)) {
+        display: none;
     }
-    */
+
+    :host(.sub-menu-item.compact-mode.expanded)
+    {
+        background-color: rgba(238, 238, 238, 0.76);
+        -webkit-backdrop-filter: saturate(180%) blur(100px);
+        backdrop-filter: saturate(180%) blur(100px);
+    }
     </style>
     <slot></slot>
     `;
-
-    var activeMenuItem;
 
     class FluentNavigationViewMenuItems extends HTMLElement {
         constructor() {
@@ -479,7 +538,7 @@ ${SegoeFluentIcon.buildCss()}
             this._parentView.addEventListener('invoked', this._toggleMode);
             this._parentItem.addEventListener('invoke', () => {
                 const expanded = this.classList.toggle('expanded');
-                this._parentView.activeMenuItem = activeMenuItem = expanded && this.classList.contains('compact-mode') ? this : null;
+                this._parentView.activeMenuItem = expanded && this.classList.contains('compact-mode') ? this : null;
             });
 
             this.addEventListener('click', e => e.stopPropagation());
@@ -494,8 +553,6 @@ ${SegoeFluentIcon.buildCss()}
                 this.classList.toggle('expanded', false);
         }
     }
-
-    window.addEventListener('click', e => activeMenuItem?.classList?.remove('expanded'));
 
     customElements.define('fluent-navigation-view-menu-items', FluentNavigationViewMenuItems);
 })();
