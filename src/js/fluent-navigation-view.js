@@ -1,21 +1,3 @@
-class SegoeFluentIcon {
-    constructor() {}
-
-    static buildCss() {
-        var css = "";
-        segoeFluentIcons.forEach(icon => {
-            css += `
-            .ms-Icon--${icon.name}::before {
-                content: '\\${icon.glyph}';
-            }
-
-            `;
-        });
-
-        return css;
-    }
-}
-
 const navigationViewStyles = `
 :host {
     background-color: #f2f2f2;
@@ -182,8 +164,6 @@ const navigationViewItemStyles = `
     text-rendering: optimizeLegibility;
 }
 
-${SegoeFluentIcon.buildCss()}
-
 :host {
     display: flex;
     flex-direction: column;
@@ -300,6 +280,7 @@ ${SegoeFluentIcon.buildCss()}
             this._parentMenu = this.closest('fluent-navigation-view-item fluent-navigation-view-menu-items');
             this._subMenu = this.querySelector('fluent-navigation-view-menu-items');
             this._button = this.shadowRoot.querySelector('div.button');
+            this._icon = this.shadowRoot.querySelector('.icon');
             this._chevron = this.shadowRoot.querySelector('.chevron');
     
             this._toggleOffset = this._toggleOffset.bind(this);
@@ -314,14 +295,16 @@ ${SegoeFluentIcon.buildCss()}
         get href() { return this.getAttribute('href') }
         set href(value) { this.setAttribute('href', value) }
 
+        get iconName() { return this.getAttribute('icon') }
+
+        get icon() { this._icon.textContent }
+        set icon(value) { this._icon.innerHTML = value }
+
         get isParent() {
             return this._subMenu !== null;
         }
         
         connectedCallback() {
-            const icon = this._button.querySelector('span.icon');
-            icon.classList.add(`ms-Icon--${this.getAttribute('icon')}`);
-
             const content = this._button.querySelector('span.content');
             content.textContent = this.getAttribute('content');
 
@@ -397,22 +380,23 @@ ${SegoeFluentIcon.buildCss()}
             this._paneTitle = this.shadowRoot.querySelector('span.pane-title');
             this._settingsItem = this.shadowRoot.querySelector('.settings-item');
 
+            this._items;
             this._activeMenuItem;
             this._selectedItem;
         }
 
         static get observedAttributes() {
-            return ['pane-display-mode', 'header', 'always-show-header', 'pane-title', 'is-settings-visible'];
+            return ['pane-display-mode', 'header', 'always-show-header', 'pane-title', 'is-settings-visible', 'icon-set'];
         }
 
         get activeMenuItem() { return this._activeMenuItem }
         set activeMenuItem(value) { this._activeMenuItem = value }
 
         connectedCallback() {
-            // Update display.
-            this._updateDisplayMode(this.getAttribute('pane-display-mode'));
+            // Defaults.
+            this._updateDisplayMode();
             this._updateHeader();
-            this._updatePaneTitle(this.getAttribute('pane-title'));
+            this._updatePaneTitle();
             this._updateSettingsVisible();
 
             // Event listeners
@@ -425,8 +409,8 @@ ${SegoeFluentIcon.buildCss()}
 
             this._settingsItem.addEventListener('navigation', () => this._navigate(this._settingsItem));
 
-            const items = this.querySelectorAll('fluent-navigation-view-item');
-            items.forEach(item => {
+            this._items = this.querySelectorAll('fluent-navigation-view-item');
+            this._items.forEach(item => {
                 if(item.hasAttribute('active')) {
                     this._selectedItem = item;
 
@@ -437,9 +421,7 @@ ${SegoeFluentIcon.buildCss()}
                 item.addEventListener('navigation', () => this._navigate(item));
             });
 
-            this._pane.addEventListener('click', e => {
-                e.stopPropagation();
-            });
+            this._pane.addEventListener('click', e => e.stopPropagation());
 
             window.addEventListener('click', () => {
                 this._dismissPane();
@@ -456,16 +438,19 @@ ${SegoeFluentIcon.buildCss()}
                 case 'always-show-header':
                     this._updateHeader();
                     break;
-                case 'pane-display-mode': this._updateDisplayMode(newValue, oldValue); break;
-                case 'pane-title': this._updatePaneTitle(newValue); break;
+                case 'pane-display-mode': this._updateDisplayMode(oldValue); break;
+                case 'pane-title': this._updatePaneTitle(); break;
                 case 'is-settings-visible': this._updateSettingsVisible(); break;
+                case 'icon-set': this._updateIcons(eval(newValue)); break;
             }
         }
 
-        _updateDisplayMode(newMode, oldMode) {
-            this.classList.add(newMode ?? 'leftcompact');
-            this.classList.toggle(oldMode, oldMode === newMode);
-            this.classList.toggle('expanded', newMode === 'left');
+        _updateDisplayMode(old) {
+            const mode = this.getAttribute('pane-display-mode');
+
+            this.classList.add(mode ?? 'leftcompact');
+            this.classList.toggle(old, old === mode);
+            this.classList.toggle('expanded', mode === 'left');
 
             this.dispatchEvent(new CustomEvent('invoked'));
         }
@@ -475,17 +460,30 @@ ${SegoeFluentIcon.buildCss()}
             const alwaysShowHeader = eval(this.getAttribute('always-show-header'));
 
             this._title.textContent = title;
-            this._header.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "block" : "none";
+            this._header.style.display = alwaysShowHeader === null || alwaysShowHeader ? "block" : "none";
         }
 
-        _updatePaneTitle(title) {
+        _updatePaneTitle() {
+            const title = this.getAttribute('pane-title');
+
             this._paneTitle.textContent = title;
             this.classList.toggle('no-title', (title ?? "") === "");
         }
 
         _updateSettingsVisible() {
             const isSettingsVisible = eval(this.getAttribute('is-settings-visible'));
-            this._settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
+            this._settingsItem.style.display = isSettingsVisible === null || isSettingsVisible ? "flex" : "none";
+        }
+
+        _updateIcons(iconSet) {
+            this._items = this.querySelectorAll('fluent-navigation-view-item');
+            
+            this._items.forEach(item => {
+                const glyph = iconSet.find(icon => icon.name == item.iconName).glyph;
+                item.icon = `&#x${glyph};`;
+            });
+
+            this._settingsItem.icon = '&#xE713;';
         }
 
         _navigate(item) {
@@ -501,6 +499,7 @@ ${SegoeFluentIcon.buildCss()}
             const eventDetails = {
                 sender: this,
                 args: {
+                    isSettingsSelected: item === this._settingsItem,
                     selectedItem: item
                 }
             };
