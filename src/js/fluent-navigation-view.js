@@ -1,266 +1,104 @@
-const navigationViewStyles = `
-:host {
-    background-color: #f2f2f2;
-    display: flex;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
-.navigation-pane {
-    background-color: #f2f2f2;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 2px);
-    margin: 1px 0 1px 1px;
-    max-height: calc(100% - 2px); /* TODO: Check if important. */
-    padding: 4px 0;
-    padding-left: 12px;
-    row-gap: 4px;
-    user-select: none;
-    width: 59px;
-    z-index: 1;
-}
-
-:host(.expanded) .navigation-pane {
-    width: 280px;
-}
-
-:host(.leftcompact) .navigation-pane {
-    left: 0;
-    position: absolute;
-    top: 0;
-}
-
-:host(.leftcompact.expanded) .navigation-pane {
-    background-color: rgba(238, 238, 238, 0.76);
-    -webkit-backdrop-filter: saturate(180%) blur(100px);
-    backdrop-filter: saturate(180%) blur(100px);
-    border: solid 1px #e5e5e5;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-    padding: 3px 0;
-    padding-left: 11px;
-}
-
-/* Button */
-.button {
-    align-items: center;
-    background-color: transparent;
-    border-radius: 5px;
-    box-sizing: border-box;
-    color: #1b1b1b;
-    display: flex;
-    height: 36px;
-    margin: 0 4px;
-    min-height: 36px;
-    padding: 0 3px;
-    position: relative;
-}
-
-.button:hover {
-    background-color: rgba(231, 231, 231, 0.78);
-}
-
-.button:active {
-    color: #838383 !important;
-}
-
-:host(.no-title) .button {
-    align-self: start;
-}
-
-.button span {
-    margin: 0 9px;
-}
-
-/* Icons */
-.icon {
-    font-family: 'Segoe Fluent Icons', sans-serif;
-    font-size: 15px;
-    line-height: 15px;
-    text-rendering: optimizeLegibility;
-    width: 15px;
-}
-
-.nav-icon::before {
-    content: '\\e700'
-}
-
-.button:active .nav-icon {
-    transform: scaleX(.75);
-}
-
-/* Pane title */
-.pane-title {
-    flex-grow: 1;
-    font-family: 'Segoe UI Variable Text', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-:host(.no-title) .pane-title {
-    display: none;
-}
-
-.menu-items-container {
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.settings-item {
-    margin: 8px 0;
-}
-
-.content-frame {
-    flex-grow: 1;
-    position: relative;
-}
-
-:host(.leftcompact) .content-frame {
-    margin-left: 60px;
-}
-
-.content {
-    background-color: #fff;
-    border-left: solid 1px #e5e5e5;
-    border-radius: 6px;
-    border-top: solid 1px #e5e5e5;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 44px);
-    left: 0;
-    position: absolute;
-    top: 44px;
-    width: 100%;
-}
-
-.content-header {
-    margin-bottom: 10px;
-    padding-top: 35px;
-    padding-left: 40px;
-}
-
-.content-title {
-    font-family: 'Segoe UI Variable Display', sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 22px;
-    margin: 0;
-}
-`;
-
-const navigationViewItemStyles = `
-.ms-Icon {
-    font-family: 'Segoe Fluent Icons', sans-serif;
-    text-rendering: optimizeLegibility;
-}
-
-:host {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    row-gap: 4px;
-    user-select: none;
-    width: 100%;
-}
-
-/* Button */
-.button {
-    align-items: center;
-    background-color: transparent;
-    border-radius: 5px;
-    box-sizing: border-box;
-    color: #1b1b1b;
-    display: flex;
-    height: 36px;
-    margin: 0 4px;
-    min-height: 36px;
-    padding: 0 3px;
-    position: relative;
-}
-
-.button:hover,
-:host([active]) .button {
-    background-color: rgba(156, 156, 156, 0.1);
-}
-
-:host([active]) .button:hover {
-    background-color: rgba(160, 160, 160, 0.06);
-}
-
-.button:active {
-    color: rgba(27, 27, 27, 0.49) !important;
-}
-
-/* Indicator */
-:host([active]) .button::before {
-    background-color: #1976d2;
-    border-radius: 2px;
-    content: '';
-    display: block;
-    height: 16px;
-    left: 0;
-    position: absolute;
-    top: 10px;
-    width: 3px;
-}
-
-.button span {
-    margin: 0 9px;
-}
-
-/* Icon */
-.icon {
-    font-size: 16px;
-    line-height: 16px;
-    width: 16px;
-}
-
-/* Content */
-.content {
-    flex-grow: 1;
-    font-family: 'Segoe UI Variable Text', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    overflow: hidden;
-    padding-right: 20px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Chevron */
-.chevron::before {
-    content: '\\E70D';
-    font-size: 12px;
-}
-
-:host(.expanded) .chevron::before {
-    content: '\\E70E';
-}
-
-/* Sub menu items offset. */
-:host(.with-offset) .button {
-    padding-left: 39px;
-}
-
-:host(.with-offset) .button::before {
-    left: 27px;
-}
-`;
-
 (function() {
     const template = document.createElement('template');
     template.innerHTML = `
-    <style>${navigationViewItemStyles}</style>
+    <style>
+    .ms-Icon {
+        font-family: 'Segoe Fluent Icons', sans-serif;
+        text-rendering: optimizeLegibility;
+    }
+    
+    :host {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        row-gap: 4px;
+        user-select: none;
+        width: 100%;
+    }
+    
+    /* Button */
+    .button {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 5px;
+        box-sizing: border-box;
+        color: #1b1b1b;
+        display: flex;
+        height: 36px;
+        margin: 0 4px;
+        min-height: 36px;
+        padding: 0 3px;
+        position: relative;
+    }
+    
+    .button:hover,
+    :host([active]) .button {
+        background-color: rgba(156, 156, 156, 0.1);
+    }
+    
+    :host([active]) .button:hover {
+        background-color: rgba(160, 160, 160, 0.06);
+    }
+    
+    .button:active {
+        color: rgba(27, 27, 27, 0.49) !important;
+    }
+    
+    /* Indicator */
+    :host([active]) .button::before {
+        background-color: #1976d2;
+        border-radius: 2px;
+        content: '';
+        display: block;
+        height: 16px;
+        left: 0;
+        position: absolute;
+        top: 10px;
+        width: 3px;
+    }
+    
+    .button span {
+        margin: 0 9px;
+    }
+    
+    /* Icon */
+    .icon {
+        font-size: 16px;
+        line-height: 16px;
+        width: 16px;
+    }
+    
+    /* Content */
+    .content {
+        flex-grow: 1;
+        font-family: 'Segoe UI Variable Text', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        overflow: hidden;
+        padding-right: 20px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Chevron */
+    .chevron::before {
+        content: '\\E70D';
+        font-size: 12px;
+    }
+    
+    :host(.expanded) .chevron::before {
+        content: '\\E70E';
+    }
+    
+    /* Sub menu items offset. */
+    :host(.with-offset) .button {
+        padding-left: 39px;
+    }
+    
+    :host(.with-offset) .button::before {
+        left: 27px;
+    }
+    </style>
     <div class='button'>
         <span class='ms-Icon icon'></span>
         <span class='content'></span>
@@ -285,8 +123,8 @@ const navigationViewItemStyles = `
     
             this._toggleOffset = this._toggleOffset.bind(this);
 
-            this.invokeEvent = new CustomEvent('invoke');
-            this.navigationEvent = new CustomEvent('navigation');
+            this.invokedEvent = new CustomEvent('invoked');
+            this.selectedEvent = new CustomEvent('selected');
         }
 
         get tag() { return this.getAttribute('tag') }
@@ -303,6 +141,11 @@ const navigationViewItemStyles = `
         get isParent() {
             return this._subMenu !== null;
         }
+
+        get selectsOnInvoke() {
+            var selectsOnInvoke = eval(this.getAttribute('selects-on-invoke'));
+            return selectsOnInvoke == null || selectsOnInvoke;
+        }
         
         connectedCallback() {
             const content = this._button.querySelector('span.content');
@@ -317,18 +160,21 @@ const navigationViewItemStyles = `
             this._chevron.style.display = this._subMenu !== null ? "block" : "none";
 
             this._button.addEventListener('click', e => {
-                this.setAttribute('active', '');
-
+                if(this.selectsOnInvoke)
+                {
+                    this.setAttribute('active', '');
+                    this.dispatchEvent(this.selectedEvent);
+                }
+                
                 var activeMenu = this._parentView.activeMenuItem;
                 var parentIsExpanded = this._parentView.classList.contains('expanded');
-
+                
                 if(!parentIsExpanded && (this._subMenu === null || activeMenu !== this._subMenu)) {
                     activeMenu?.classList?.remove('expanded');
                     activeMenu?.parentItem.classList.remove('expanded');
                 }
-
-                this.dispatchEvent(this.invokeEvent);
-                this.dispatchEvent(this.navigationEvent);
+                
+                this.dispatchEvent(this.invokedEvent);
             });
         }
 
@@ -343,7 +189,165 @@ const navigationViewItemStyles = `
 (function() {
     const template = document.createElement('template');
     template.innerHTML = `
-    <style>${navigationViewStyles}</style>
+    <style>
+    :host {
+        background-color: #f2f2f2;
+        display: flex;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+    
+    .navigation-pane {
+        background-color: #f2f2f2;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 2px);
+        margin: 1px 0 1px 1px;
+        max-height: calc(100% - 2px); /* TODO: Check if important. */
+        padding: 4px 0;
+        padding-left: 12px;
+        row-gap: 4px;
+        user-select: none;
+        width: 59px;
+        z-index: 1;
+    }
+    
+    :host(.expanded) .navigation-pane {
+        width: 280px;
+    }
+    
+    :host(.leftcompact) .navigation-pane {
+        left: 0;
+        position: absolute;
+        top: 0;
+    }
+    
+    :host(.leftcompact.expanded) .navigation-pane {
+        background-color: rgba(238, 238, 238, 0.76);
+        -webkit-backdrop-filter: saturate(180%) blur(100px);
+        backdrop-filter: saturate(180%) blur(100px);
+        border: solid 1px #e5e5e5;
+        border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+        padding: 3px 0;
+        padding-left: 11px;
+    }
+    
+    /* Button */
+    .button {
+        align-items: center;
+        background-color: transparent;
+        border-radius: 5px;
+        box-sizing: border-box;
+        color: #1b1b1b;
+        display: flex;
+        height: 36px;
+        margin: 0 4px;
+        min-height: 36px;
+        padding: 0 3px;
+        position: relative;
+    }
+    
+    .button:hover {
+        background-color: rgba(231, 231, 231, 0.78);
+    }
+    
+    .button:active {
+        color: #838383 !important;
+    }
+    
+    :host(.no-title) .button {
+        align-self: start;
+    }
+    
+    .button span {
+        margin: 0 9px;
+    }
+    
+    /* Icons */
+    .icon {
+        font-family: 'Segoe Fluent Icons', sans-serif;
+        font-size: 15px;
+        line-height: 15px;
+        text-rendering: optimizeLegibility;
+        width: 15px;
+    }
+    
+    .nav-icon::before {
+        content: '\\e700'
+    }
+    
+    .button:active .nav-icon {
+        transform: scaleX(.75);
+    }
+    
+    /* Pane title */
+    .pane-title {
+        flex-grow: 1;
+        font-family: 'Segoe UI Variable Text', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    :host(.no-title) .pane-title {
+        display: none;
+    }
+    
+    .menu-items-container {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+    
+    .settings-item {
+        margin: 8px 0;
+    }
+    
+    .content-frame {
+        flex-grow: 1;
+        position: relative;
+    }
+    
+    :host(.leftcompact) .content-frame {
+        margin-left: 60px;
+    }
+    
+    .content {
+        background-color: #fff;
+        border-left: solid 1px #e5e5e5;
+        border-radius: 6px;
+        border-top: solid 1px #e5e5e5;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 44px);
+        left: 0;
+        position: absolute;
+        top: 44px;
+        width: 100%;
+    }
+    
+    .content-header {
+        margin-bottom: 10px;
+        padding-top: 35px;
+        padding-left: 40px;
+    }
+    
+    .content-title {
+        font-family: 'Segoe UI Variable Display', sans-serif;
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 22px;
+        margin: 0;
+    }
+    </style>
     <div class='navigation-pane'>
         <div class='button nav-button'>
             <span class='ms-Icon icon nav-icon'></span>
@@ -392,11 +396,22 @@ const navigationViewItemStyles = `
         get activeMenuItem() { return this._activeMenuItem }
         set activeMenuItem(value) { this._activeMenuItem = value }
 
+        get items() {
+            const items = Array.from(this.querySelectorAll('fluent-navigation-view-item'));
+            items.push(this._settingsItem);
+
+            return items;
+        }
+
         connectedCallback() {
             // Defaults.
             this._updateDisplayMode();
-            this._updateHeader();
             this._updatePaneTitle();
+
+            this.toggleAttribute('always-show-header', this.getAttribute('always-show-header') !== 'false');
+            this._updateHeader();
+
+            this.toggleAttribute('is-settings-visible', this.getAttribute('always-show-header') !== 'false');
             this._updateSettingsVisible();
 
             // Event listeners
@@ -407,10 +422,7 @@ const navigationViewItemStyles = `
                 e.stopPropagation();
             });
 
-            this._settingsItem.addEventListener('navigation', () => this._navigate(this._settingsItem));
-
-            this._items = this.querySelectorAll('fluent-navigation-view-item');
-            this._items.forEach(item => {
+            this.items.forEach(item => {
                 if(item.hasAttribute('active')) {
                     this._selectedItem = item;
 
@@ -418,7 +430,11 @@ const navigationViewItemStyles = `
                     item.parentElement?.parentElement?.setAttribute('expanded', '');
                 }
     
-                item.addEventListener('navigation', () => this._navigate(item));
+                item.addEventListener('selected', () => this._itemSelected(item));
+                item.addEventListener('invoked', () => {
+                    if(!item.isParent)
+                        this._dismissPane();
+                });
             });
 
             this._pane.addEventListener('click', e => e.stopPropagation());
@@ -460,7 +476,7 @@ const navigationViewItemStyles = `
             const alwaysShowHeader = eval(this.getAttribute('always-show-header'));
 
             this._title.textContent = title;
-            this._header.style.display = alwaysShowHeader === null || alwaysShowHeader ? "block" : "none";
+            this._header.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "block" : "none";
         }
 
         _updatePaneTitle() {
@@ -471,25 +487,18 @@ const navigationViewItemStyles = `
         }
 
         _updateSettingsVisible() {
-            const isSettingsVisible = eval(this.getAttribute('is-settings-visible'));
-            this._settingsItem.style.display = isSettingsVisible === null || isSettingsVisible ? "flex" : "none";
+            var isSettingsVisible = eval(this.getAttribute('is-settings-visible'));
+            this._settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
         }
 
         _updateIcons(iconSet) {
-            this._items = this.querySelectorAll('fluent-navigation-view-item');
-            
-            this._items.forEach(item => {
+            this.items.forEach(item => {
                 const glyph = iconSet.find(icon => icon.name == item.iconName).glyph;
                 item.icon = `&#x${glyph};`;
             });
-
-            this._settingsItem.icon = '&#xE713;';
         }
 
-        _navigate(item) {
-            if(!item.isParent)
-                this._dismissPane();
-
+        _itemSelected(item) {
             if(this._selectedItem === item)
                 return;
 
@@ -580,7 +589,7 @@ const navigationViewItemStyles = `
             this._toggleMode();
 
             this._parentView.addEventListener('invoked', this._toggleMode);
-            this._parentItem.addEventListener('invoke', () => {
+            this._parentItem.addEventListener('invoked', () => {
                 const expanded = this.classList.toggle('expanded');
 
                 this._parentItem.classList.toggle('expanded', expanded);
