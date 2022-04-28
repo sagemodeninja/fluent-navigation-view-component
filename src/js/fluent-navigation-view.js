@@ -1,5 +1,5 @@
-(function() {
-    const template = document.createElement('template');
+(function () {
+    const template = document.createElement("template");
     template.innerHTML = `
     <style>
     .ms-Icon {
@@ -111,83 +111,107 @@
         constructor() {
             super();
 
-            this.attachShadow({mode: 'open'});
+            this.attachShadow({ mode: "open" });
             this.shadowRoot.append(template.content.cloneNode(true));
-            
-            this._parentView = this.closest('fluent-navigation-view') ?? this.getRootNode().host;
-            this._parentMenu = this.closest('fluent-navigation-view-item fluent-navigation-view-menu-items');
-            this._subMenu = this.querySelector('fluent-navigation-view-menu-items');
-            this._button = this.shadowRoot.querySelector('div.button');
-            this._icon = this.shadowRoot.querySelector('.icon');
-            this._chevron = this.shadowRoot.querySelector('.chevron');
-    
+
             this._toggleOffset = this._toggleOffset.bind(this);
 
-            this.invokedEvent = new CustomEvent('invoked');
-            this.selectedEvent = new CustomEvent('selected');
+            this.invokedEvent = new CustomEvent("invoked");
+            this.selectedEvent = new CustomEvent("selected");
         }
 
-        get tag() { return this.getAttribute('tag') }
-        set tag(value) { this.setAttribute(tag, value) }
-
-        get href() { return this.getAttribute('href') }
-        set href(value) { this.setAttribute('href', value) }
-
-        get iconName() { return this.getAttribute('icon') }
-
-        get icon() { this._icon.textContent }
-        set icon(value) { this._icon.innerHTML = value }
+        get parentView() {
+            this._parentView ??= (this.closest("fluent-navigation-view") ?? this.getRootNode().host);
+            return this._parentView;
+        }
 
         get isParent() {
-            return this._subMenu !== null;
+            return this.subMenu !== null;
+        }
+
+        get subMenu() {
+            this._subMenu ??= this.querySelector("fluent-navigation-view-menu-items");
+            return this._subMenu;
         }
 
         get selectsOnInvoke() {
-            var selectsOnInvoke = eval(this.getAttribute('selects-on-invoke'));
+            const selectsOnInvoke = eval(this.getAttribute("selects-on-invoke"));
             return selectsOnInvoke == null || selectsOnInvoke;
         }
-        
+
+        get iconSpan() {
+            this._iconSpan ??= this.shadowRoot.querySelector(".icon");
+            return this._iconSpan;
+        }
+
+        get iconName() {
+            return this.getAttribute("icon");
+        }
+
+        get icon() {
+            return this.iconSpan.innerHTML;
+        }
+
+        set icon(value) {
+            this.iconSpan.innerHTML = value;
+        }
+
+        get tag() {
+            return this.getAttribute("tag");
+        }
+
+        set tag(value) {
+            this.setAttribute(tag, value);
+        }
+
         connectedCallback() {
-            const content = this._button.querySelector('span.content');
-            content.textContent = this.getAttribute('content');
+            const parentMenu = this.closest("fluent-navigation-view-item fluent-navigation-view-menu-items");
+            const button = this.shadowRoot.querySelector("div.button");
+            const content = button.querySelector("span.content");
 
-            if(this._parentMenu !== null) {
+            content.textContent = this.getAttribute("content");
+
+            if (parentMenu !== null) {
                 this._toggleOffset();
-                this._parentView.addEventListener('invoked', this._toggleOffset);
+                this.parentView.addEventListener("invoked", this._toggleOffset);
             }
-            
-            // Chevron
-            this._chevron.style.display = this._subMenu !== null ? "block" : "none";
 
-            this._button.addEventListener('click', e => {
-                if(this.selectsOnInvoke)
-                {
-                    this.setAttribute('active', '');
+            // Chevron
+            customElements
+                .whenDefined("fluent-navigation-view-menu-items")
+                .then(_ => {
+                    const chevron = this.shadowRoot.querySelector(".chevron");
+                    chevron.style.display = this.subMenu !== null ? "block" : "none";
+                });
+
+            button.addEventListener("click", e => {
+                if (this.selectsOnInvoke) {
+                    this.setAttribute("active", "");
                     this.dispatchEvent(this.selectedEvent);
                 }
                 
-                var activeMenu = this._parentView.activeMenuItem;
-                var parentIsExpanded = this._parentView.classList.contains('expanded');
-                
-                if(!parentIsExpanded && (this._subMenu === null || activeMenu !== this._subMenu)) {
-                    activeMenu?.classList?.remove('expanded');
-                    activeMenu?.parentItem.classList.remove('expanded');
+                var activeMenu = this.parentView.activeMenuItem;
+                var parentIsExpanded = this.parentView.classList.contains("expanded");
+
+                if (!parentIsExpanded && (this.subMenu === null || activeMenu !== this.subMenu)) {
+                    activeMenu?.classList?.remove("expanded");
+                    activeMenu?.parentItem.classList.remove("expanded");
                 }
-                
+
                 this.dispatchEvent(this.invokedEvent);
             });
         }
 
         _toggleOffset() {
-            this.classList.toggle('with-offset', this._parentView.classList.contains('expanded'));
+            this.classList.toggle("with-offset", this.parentView.classList.contains("expanded"));
         }
     }
-    
-    customElements.define('fluent-navigation-view-item', FluentNavigationViewItem);
+
+    customElements.define("fluent-navigation-view-item", FluentNavigationViewItem);
 })();
 
-(function() {
-    const template = document.createElement('template');
+(function () {
+    const template = document.createElement("template");
     template.innerHTML = `
     <style>
     :host {
@@ -372,17 +396,9 @@
     class FluentNavigationView extends HTMLElement {
         constructor() {
             super();
-            
-            this.attachShadow({mode: 'open'});
+
+            this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-            this._header = this.shadowRoot.querySelector('.content-header');
-            this._title = this.shadowRoot.querySelector('.content-title');
-
-            this._pane = this.shadowRoot.querySelector('.navigation-pane');
-            this._navButton = this.shadowRoot.querySelector('.nav-button');
-            this._paneTitle = this.shadowRoot.querySelector('span.pane-title');
-            this._settingsItem = this.shadowRoot.querySelector('.settings-item');
 
             this._items;
             this._activeMenuItem;
@@ -390,108 +406,138 @@
         }
 
         static get observedAttributes() {
-            return ['pane-display-mode', 'header', 'always-show-header', 'pane-title', 'is-settings-visible', 'icon-set'];
+            return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible", "icon-set"];
         }
 
         get activeMenuItem() { return this._activeMenuItem }
         set activeMenuItem(value) { this._activeMenuItem = value }
 
         get items() {
-            const items = Array.from(this.querySelectorAll('fluent-navigation-view-item'));
-            items.push(this._settingsItem);
+            const items = Array.from(this.querySelectorAll("fluent-navigation-view-item"));
+            items.push(this.settingsItem);
 
             return items;
         }
 
+        get paneTitle() {
+            this._paneTitle ??= this.shadowRoot.querySelector(".pane-title");
+            return this._paneTitle;
+        }
+
+        get contentHeader() {
+            this._contentHeader ??= this.shadowRoot.querySelector(".content-header");
+            return this._contentHeader;
+        }
+
+        get contentTitle() {
+            this._contentTitle ??= this.shadowRoot.querySelector(".content-title");
+            return this._contentTitle;
+        }
+
+        get settingsItem() {
+            this._settingsItem ??= this.shadowRoot.querySelector(".settings-item");
+            return this._settingsItem;
+        }
+
         connectedCallback() {
+
             // Defaults.
             this._updateDisplayMode();
             this._updatePaneTitle();
 
-            this.toggleAttribute('always-show-header', this.getAttribute('always-show-header') !== 'false');
+            this.toggleAttribute("always-show-header", this.getAttribute("always-show-header") !== "false");
             this._updateHeader();
 
-            this.toggleAttribute('is-settings-visible', this.getAttribute('always-show-header') !== 'false');
+            this.toggleAttribute("is-settings-visible", this.getAttribute("always-show-header") !== "false");
             this._updateSettingsVisible();
 
             // Event listeners
-            this._navButton.addEventListener('click', e => {
-                this.classList.toggle('expanded');
-                this.dispatchEvent(new CustomEvent('invoked'));
+            const navButton = this.shadowRoot.querySelector(".nav-button");
+            navButton.addEventListener("click", e => {
+                this.classList.toggle("expanded");
+                this.dispatchEvent(new CustomEvent("invoked"));
 
                 e.stopPropagation();
             });
 
-            this.items.forEach(item => {
-                if(item.hasAttribute('active')) {
-                    this._selectedItem = item;
+            customElements
+                .whenDefined("fluent-navigation-view-item")
+                .then(_ => {
+                    console.log(this.items);
+                    this.items.forEach(item => {
+                        if (item.hasAttribute("active")) {
+                            this._selectedItem = item;
 
-                    // TODO: No longer used or different implementation.
-                    item.parentElement?.parentElement?.setAttribute('expanded', '');
-                }
-    
-                item.addEventListener('selected', () => this._itemSelected(item));
-                item.addEventListener('invoked', () => {
-                    if(!item.isParent)
-                        this._dismissPane();
+                            // TODO: No longer used or different implementation.
+                            item.parentElement?.parentElement?.setAttribute("expanded", "");
+                        }
+
+                        item.addEventListener("selected", () => this._itemSelected(item));
+                        item.addEventListener("invoked", () => {
+                            if (!item.isParent)
+                                this._dismissPane();
+                        });
+                    });
                 });
-            });
 
-            this._pane.addEventListener('click', e => e.stopPropagation());
+            const navPane = this.shadowRoot.querySelector(".navigation-pane");
+            navPane.addEventListener("click", e => e.stopPropagation());
 
-            window.addEventListener('click', () => {
+            window.addEventListener("click", () => {
                 this._dismissPane();
 
-                this._activeMenuItem?.classList?.remove('expanded');
-                this._activeMenuItem?.parentItem.classList.remove('expanded');
+                this._activeMenuItem?.classList?.remove("expanded");
+                this._activeMenuItem?.parentItem.classList.remove("expanded");
             });
         }
-        
+
         attributeChangedCallback(name, oldValue, newValue) {
-            switch(name)
-            {
-                case 'header': 
-                case 'always-show-header':
+            switch (name) {
+                case "header":
+                case "always-show-header":
                     this._updateHeader();
                     break;
-                case 'pane-display-mode': this._updateDisplayMode(oldValue); break;
-                case 'pane-title': this._updatePaneTitle(); break;
-                case 'is-settings-visible': this._updateSettingsVisible(); break;
-                case 'icon-set': this._updateIcons(eval(newValue)); break;
+                case "pane-display-mode": this._updateDisplayMode(oldValue); break;
+                case "pane-title": this._updatePaneTitle(); break;
+                case "is-settings-visible": this._updateSettingsVisible(); break;
+                case "icon-set": this._updateIcons(eval(newValue)); break;
             }
         }
 
         _updateDisplayMode(old) {
-            const mode = this.getAttribute('pane-display-mode');
+            const mode = this.getAttribute("pane-display-mode");
 
-            this.classList.add(mode ?? 'leftcompact');
+            this.classList.add(mode ?? "leftcompact");
             this.classList.toggle(old, old === mode);
-            this.classList.toggle('expanded', mode === 'left');
+            this.classList.toggle("expanded", mode === "left");
 
-            this.dispatchEvent(new CustomEvent('invoked'));
+            this.dispatchEvent(new CustomEvent("invoked"));
         }
 
         _updateHeader() {
-            const title = this.getAttribute('header');
-            const alwaysShowHeader = eval(this.getAttribute('always-show-header'));
+            const title = this.getAttribute("header");
+            const alwaysShowHeader = eval(this.getAttribute("always-show-header"));
 
-            this._title.textContent = title;
-            this._header.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "block" : "none";
+            this.contentTitle.textContent = title;
+            this.contentHeader.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "block" : "none";
         }
 
         _updatePaneTitle() {
-            const title = this.getAttribute('pane-title');
+            const title = this.getAttribute("pane-title");
 
-            this._paneTitle.textContent = title;
-            this.classList.toggle('no-title', (title ?? "") === "");
+            this.paneTitle.textContent = title;
+            this.classList.toggle("no-title", (title ?? "") === "");
         }
 
         _updateSettingsVisible() {
-            var isSettingsVisible = eval(this.getAttribute('is-settings-visible'));
-            this._settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
+            const isSettingsVisible = eval(this.getAttribute("is-settings-visible"));
+            this.settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
         }
 
         _updateIcons(iconSet) {
+            if (iconSet == null)
+                return;
+
             this.items.forEach(item => {
                 const glyph = iconSet.find(icon => icon.name == item.iconName).glyph;
                 item.icon = `&#x${glyph};`;
@@ -499,10 +545,10 @@
         }
 
         _itemSelected(item) {
-            if(this._selectedItem === item)
+            if (this._selectedItem === item)
                 return;
 
-            this._selectedItem?.removeAttribute('active');
+            this._selectedItem?.removeAttribute("active");
             this._selectedItem = item;
 
             const eventDetails = {
@@ -512,25 +558,24 @@
                     selectedItem: item
                 }
             };
-            this.dispatchEvent(new CustomEvent('selectionchanged', { detail: eventDetails }));
+            this.dispatchEvent(new CustomEvent("selectionchanged", { detail: eventDetails }));
         }
 
         _dismissPane() {
             const classes = this.classList;
 
-            if(classes.contains('leftcompact') && classes.contains('expanded'))
-            {
-                this.classList.remove('expanded');
-                this.dispatchEvent(new CustomEvent('invoked'));
+            if (classes.contains("leftcompact") && classes.contains("expanded")) {
+                this.classList.remove("expanded");
+                this.dispatchEvent(new CustomEvent("invoked"));
             }
         }
     }
-    
-    customElements.define('fluent-navigation-view', FluentNavigationView);
+
+    customElements.define("fluent-navigation-view", FluentNavigationView);
 })();
 
-(function() {
-    const template = document.createElement('template');
+(function () {
+    const template = document.createElement("template");
     template.innerHTML = `
     <style>
     :host {
@@ -569,54 +614,58 @@
     class FluentNavigationViewMenuItems extends HTMLElement {
         constructor() {
             super();
-            
-            this.attachShadow({mode: 'open'});
+
+            this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
 
             this._toggleMode = this._toggleMode.bind(this);
-
-            this._parentView = this.closest('fluent-navigation-view');
-            this._parentItem = this.closest('fluent-navigation-view-item');
         }
 
-        get parentItem() { return this._parentItem }
+        get parentView() {
+            this._parentView ??= this.closest("fluent-navigation-view");
+            return this._parentView;
+        }
+
+        get parentItem() {
+            this._parentItem ??= this.closest("fluent-navigation-view-item");
+            return this._parentItem;
+        }
 
         connectedCallback() {
-            if(this._parentItem === null)
+            if (this.parentItem === null)
                 return;
 
-            this.classList.add('sub-menu-item');
+            this.classList.add("sub-menu-item");
             this._toggleMode();
 
-            this._parentView.addEventListener('invoked', this._toggleMode);
-            this._parentItem.addEventListener('invoked', () => {
-                const expanded = this.classList.toggle('expanded');
+            this.parentView.addEventListener("invoked", this._toggleMode);
+            this.parentItem.addEventListener("invoked", () => {
+                const expanded = this.classList.toggle("expanded");
 
-                this._parentItem.classList.toggle('expanded', expanded);
-                this._parentView.activeMenuItem = expanded && this.classList.contains('compact-mode') ? this : null;
+                this.parentItem.classList.toggle("expanded", expanded);
+                this.parentView.activeMenuItem = expanded && this.classList.contains("compact-mode") ? this : null;
             });
 
-            this.addEventListener('click', e => e.stopPropagation());
+            this.addEventListener("click", e => e.stopPropagation());
         }
 
         _toggleMode() {
-            var compactMode = !this._parentView.classList.contains('expanded');
-            
-            this.classList.toggle('compact-mode', compactMode);
+            const compactMode = !this.parentView.classList.contains("expanded");
 
-            if(compactMode)
-            {
-                this.classList.toggle('expanded', false);
-                this._parentItem.classList.remove('expanded');
+            this.classList.toggle("compact-mode", compactMode);
+
+            if (compactMode) {
+                this.classList.toggle("expanded", false);
+                this.parentItem.classList.remove("expanded");
             }
         }
     }
 
-    customElements.define('fluent-navigation-view-menu-items', FluentNavigationViewMenuItems);
+    customElements.define("fluent-navigation-view-menu-items", FluentNavigationViewMenuItems);
 })();
 
-(function(){
-    const template = document.createElement('template');
+(function () {
+    const template = document.createElement("template");
     template.innerHTML = `
     <style>
     :host {
@@ -650,27 +699,30 @@
     class FluentNavigationViewItemHeader extends HTMLElement {
         constructor() {
             super();
-            
-            this.attachShadow({mode: 'open'});
+
+            this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
 
             this._toggleVisibility = this._toggleVisibility.bind(this);
+        }
 
-            this._parentView = this.closest('fluent-navigation-view');
-            this._content = this.shadowRoot.querySelector('span.content');
+        get parentView() {
+            this._parentView ??= this.closest("fluent-navigation-view");
+            return this._parentView;
         }
 
         connectedCallback() {
-            this._content.textContent = this.getAttribute('content');
+            const content = this.shadowRoot.querySelector("span.content");
+            content.textContent = this.getAttribute("content");
 
             this._toggleVisibility();
-            this._parentView.addEventListener('invoked', this._toggleVisibility);
+            this.parentView.addEventListener("invoked", this._toggleVisibility);
         }
 
         _toggleVisibility() {
-            this.classList.toggle('visible', this._parentView.classList.contains('expanded'));
+            this.classList.toggle("visible", this.parentView.classList.contains("expanded"));
         }
     }
-    
-    customElements.define('fluent-navigation-view-item-header', FluentNavigationViewItemHeader);
+
+    customElements.define("fluent-navigation-view-item-header", FluentNavigationViewItemHeader);
 })();
