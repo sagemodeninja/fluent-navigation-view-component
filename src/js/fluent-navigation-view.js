@@ -116,8 +116,8 @@
 
             this._toggleOffset = this._toggleOffset.bind(this);
 
-            this.invokedEvent = new CustomEvent("invoked");
-            this.selectedEvent = new CustomEvent("selected");
+            this.invokedEvent = new CustomEvent("invoked", { bubbles: true });
+            this.selectedEvent = new CustomEvent("selected", { bubbles: true });
         }
 
         get parentView() {
@@ -440,7 +440,6 @@
         }
 
         connectedCallback() {
-
             // Defaults.
             this._updateDisplayMode();
             this._updatePaneTitle();
@@ -455,7 +454,7 @@
             const navButton = this.shadowRoot.querySelector(".nav-button");
             navButton.addEventListener("click", e => {
                 this.classList.toggle("expanded");
-                this.dispatchEvent(new CustomEvent("invoked"));
+                this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
 
                 e.stopPropagation();
             });
@@ -463,7 +462,6 @@
             customElements
                 .whenDefined("fluent-navigation-view-item")
                 .then(_ => {
-                    console.log(this.items);
                     this.items.forEach(item => {
                         if (item.hasAttribute("active")) {
                             this._selectedItem = item;
@@ -511,7 +509,7 @@
             this.classList.toggle(old, old === mode);
             this.classList.toggle("expanded", mode === "left");
 
-            this.dispatchEvent(new CustomEvent("invoked"));
+            this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
         }
 
         _updateHeader() {
@@ -558,7 +556,8 @@
                     selectedItem: item
                 }
             };
-            this.dispatchEvent(new CustomEvent("selectionchanged", { detail: eventDetails }));
+
+            this.dispatchEvent(new CustomEvent("selectionchanged", { bubbles: true, detail: eventDetails }));
         }
 
         _dismissPane() {
@@ -566,7 +565,7 @@
 
             if (classes.contains("leftcompact") && classes.contains("expanded")) {
                 this.classList.remove("expanded");
-                this.dispatchEvent(new CustomEvent("invoked"));
+                this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
             }
         }
     }
