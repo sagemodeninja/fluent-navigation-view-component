@@ -116,8 +116,8 @@
 
             this._toggleOffset = this._toggleOffset.bind(this);
 
-            this.invokedEvent = new CustomEvent("invoked", { bubbles: true });
-            this.selectedEvent = new CustomEvent("selected", { bubbles: true });
+            this.invokedEvent = new CustomEvent("invoked");
+            this.selectedEvent = new CustomEvent("selected");
         }
 
         get parentView() {
@@ -454,7 +454,7 @@
             const navButton = this.shadowRoot.querySelector(".nav-button");
             navButton.addEventListener("click", e => {
                 this.classList.toggle("expanded");
-                this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
+                this.dispatchEvent(new CustomEvent("invoked"));
 
                 e.stopPropagation();
             });
@@ -509,7 +509,7 @@
             this.classList.toggle(old, old === mode);
             this.classList.toggle("expanded", mode === "left");
 
-            this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
+            this.dispatchEvent(new CustomEvent("invoked"));
         }
 
         _updateHeader() {
@@ -565,7 +565,7 @@
 
             if (classes.contains("leftcompact") && classes.contains("expanded")) {
                 this.classList.remove("expanded");
-                this.dispatchEvent(new CustomEvent("invoked"), { bubbles: true });
+                this.dispatchEvent(new CustomEvent("invoked"));
             }
         }
     }
