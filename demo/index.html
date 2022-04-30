@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Navigation View - Demo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="src/fonts/segoe-fluent-icons/segoe-fluent-icons.css">
+        <link rel="stylesheet" href="src/fonts/segoe-ui-variable/segoe-ui-variable.css">
+        <link rel="stylesheet" href="src/css/style.css">
+    </head>
+    <body>
+        <fluent-navigation-view id="navigation_view" header="Home" pane-display-mode="leftcompact" icon-set="segoeFluentIcons" header-src="tag" selects-on-load>
+            <fluent-navigation-view-menu-items>
+                <fluent-navigation-view-item icon="Home" content="Home" tag="Home" href="index.html"></fluent-navigation-view-item>
+                <fluent-navigation-view-item-header content="Pages"></fluent-navigation-view-item-header>
+                <fluent-navigation-view-item icon="ToolTip" content="Samples" selects-on-invoke="false">
+                    <fluent-navigation-view-menu-items>
+                        <fluent-navigation-view-item icon="Info" content="About" tag="About Library" href="about.html"></fluent-navigation-view-item>
+                        <fluent-navigation-view-item icon="Mail" content="Contact" tag="Contact Us" href="contact.html"></fluent-navigation-view-item>
+                    </fluent-navigation-view-menu-items>
+                </fluent-navigation-view-item>
+            </fluent-navigation-view-menu-items>
+
+            <div slot="content-frame">
+                <div style="padding: 10px;">
+                    <div>
+                        <input type="radio" name="paneDisplayMode" value="leftcompact" id="leftcompact">
+                        <label for="leftcompact">LeftCompact (Default)</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="paneDisplayMode" value="left" id="left" checked>
+                        <label for="left">Left</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="paneTitle">Pane Title:</label>
+                    <input type="text" name="paneTitle" id="paneTitle" placeholder="Pane Title">
+                </div>
+                <button id="toggle_header">Toggle Header: TRUE</button>
+                <button id="toggle_settings">Toggle Settings: TRUE</button>
+            </div>
+        </fluent-navigation-view>
+    </body>
+
+    <script src="src/js/script.js"></script>
+    <script src="../src/fluent-navigation-view.js"></script>
+</html>
