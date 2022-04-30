@@ -129,6 +129,11 @@
             return this.subMenu !== null;
         }
 
+        get parentMenu() {
+            this._parentMenu ??= this.closest("fluent-navigation-view-item fluent-navigation-view-menu-items");
+            return this._parentMenu;
+        }
+
         get subMenu() {
             this._subMenu ??= this.querySelector("fluent-navigation-view-menu-items");
             return this._subMenu;
@@ -161,17 +166,24 @@
         }
 
         set tag(value) {
-            this.setAttribute(tag, value);
+            this.setAttribute("tag", value);
+        }
+
+        get href() {
+            return this.getAttribute("href");
+        }
+
+        set href(value) {
+            this.setAttribute("href", value);
         }
 
         connectedCallback() {
-            const parentMenu = this.closest("fluent-navigation-view-item fluent-navigation-view-menu-items");
             const button = this.shadowRoot.querySelector("div.button");
             const content = button.querySelector("span.content");
 
             content.textContent = this.getAttribute("content");
 
-            if (parentMenu !== null) {
+            if (this.parentMenu !== null) {
                 this._toggleOffset();
                 this.parentView.addEventListener("invoked", this._toggleOffset);
             }
@@ -186,7 +198,7 @@
 
             button.addEventListener("click", e => {
                 if (this.selectsOnInvoke) {
-                    this.setAttribute("active", "");
+                    this.toggleAttribute("active", true);
                     this.dispatchEvent(this.selectedEvent);
                 }
                 
@@ -204,6 +216,16 @@
 
         _toggleOffset() {
             this.classList.toggle("with-offset", this.parentView.classList.contains("expanded"));
+        }
+
+        select(selected) {
+            if(selected && !this.selectsOnInvoke)
+                return;
+
+            this.toggleAttribute('active', selected);
+
+            this.parentMenu?.classList.toggle("expanded", selected);
+            this.subMenu?.classList.toggle("expanded", selected);
         }
     }
 
@@ -450,6 +472,22 @@
             this.toggleAttribute("is-settings-visible", this.getAttribute("always-show-header") !== "false");
             this._updateSettingsVisible();
 
+            // Select item on load by href.
+            if(this.hasAttribute("selects-on-load"))
+            {
+                var targetItem = this.items.find(item => {
+                    return new URL(item.href, window.location).href === window.location.href;
+                });
+
+                if(targetItem)
+                {
+                    targetItem.select(true);
+
+                    var headerSrc = this.getAttribute("header-src") ?? "content";
+                    this.setAttribute("header", targetItem.getAttribute(headerSrc));
+                }
+            }
+
             // Event listeners
             const navButton = this.shadowRoot.querySelector(".nav-button");
             navButton.addEventListener("click", e => {
@@ -543,10 +581,9 @@
         }
 
         _itemSelected(item) {
-            if (this._selectedItem === item)
-                return;
+            if (this._selectedItem !== item)
+                this._selectedItem?.removeAttribute("active");
 
-            this._selectedItem?.removeAttribute("active");
             this._selectedItem = item;
 
             const eventDetails = {
