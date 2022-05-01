@@ -32,11 +32,11 @@
     }
     
     .button:hover,
-    :host([active]) .button {
+    :host(.active) .button {
         background-color: rgba(156, 156, 156, 0.1);
     }
     
-    :host([active]) .button:hover {
+    :host(.active) .button:hover {
         background-color: rgba(160, 160, 160, 0.06);
     }
     
@@ -45,7 +45,7 @@
     }
     
     /* Indicator */
-    :host([active]) .button::before {
+    :host(.active) .button::before {
         background-color: #1976d2;
         border-radius: 2px;
         content: '';
@@ -125,10 +125,6 @@
             return this._parentView;
         }
 
-        get isParent() {
-            return this.subMenu !== null;
-        }
-
         get parentMenu() {
             this._parentMenu ??= this.closest("fluent-navigation-view-item fluent-navigation-view-menu-items");
             return this._parentMenu;
@@ -137,11 +133,6 @@
         get subMenu() {
             this._subMenu ??= this.querySelector("fluent-navigation-view-menu-items");
             return this._subMenu;
-        }
-
-        get selectsOnInvoke() {
-            const selectsOnInvoke = eval(this.getAttribute("selects-on-invoke"));
-            return selectsOnInvoke == null || selectsOnInvoke;
         }
 
         get iconSpan() {
@@ -161,6 +152,15 @@
             this.iconSpan.innerHTML = value;
         }
 
+        get isParent() {
+            return this.subMenu !== null;
+        }
+
+        get selectsOnInvoke() {
+            const selectsOnInvoke = eval(this.getAttribute("selects-on-invoke"));
+            return selectsOnInvoke == null || selectsOnInvoke;
+        }
+
         get tag() {
             return this.getAttribute("tag");
         }
@@ -178,17 +178,11 @@
         }
 
         connectedCallback() {
-            const button = this.shadowRoot.querySelector("div.button");
-            const content = button.querySelector("span.content");
-
+            // Content.
+            const content = this.shadowRoot.querySelector(".content");
             content.textContent = this.getAttribute("content");
 
-            if (this.parentMenu !== null) {
-                this._toggleOffset();
-                this.parentView.addEventListener("invoked", this._toggleOffset);
-            }
-
-            // Chevron
+            // Chevron.
             customElements
                 .whenDefined("fluent-navigation-view-menu-items")
                 .then(_ => {
@@ -196,21 +190,31 @@
                     chevron.style.display = this.subMenu !== null ? "block" : "none";
                 });
 
-            button.addEventListener("click", e => {
-                if (this.selectsOnInvoke) {
-                    this.toggleAttribute("active", true);
-                    this.dispatchEvent(this.selectedEvent);
-                }
-                
-                var activeMenu = this.parentView.activeMenuItem;
-                var parentIsExpanded = this.parentView.classList.contains("expanded");
+            // Sub-item offset.
+            if (this.parentMenu !== null) {
+                this._toggleOffset();
+                this.parentView.addEventListener("invoked", this._toggleOffset);
+            }
 
-                if (!parentIsExpanded && (this.subMenu === null || activeMenu !== this.subMenu)) {
+            // Event listeners.
+            const button = this.shadowRoot.querySelector(".button");
+            button.addEventListener("click", e => {
+                this.classList.toggle("active", this.selectsOnInvoke);
+
+                // Collapse active menu.
+                var activeMenu = this.parentView.activeMenuItem;
+                var isParentExpanded = this.parentView.classList.contains("expanded");
+
+                if (!isParentExpanded && (this.subMenu === null || activeMenu !== this.subMenu)) {
                     activeMenu?.classList?.remove("expanded");
                     activeMenu?.parentItem.classList.remove("expanded");
                 }
 
+                // Events.
                 this.dispatchEvent(this.invokedEvent);
+
+                if (this.selectsOnInvoke)
+                    this.dispatchEvent(this.selectedEvent);
             });
         }
 
@@ -219,13 +223,10 @@
         }
 
         select(selected) {
-            if(selected && !this.selectsOnInvoke)
-                return;
-
-            this.toggleAttribute('active', selected);
-
-            this.parentMenu?.classList.toggle("expanded", selected);
-            this.subMenu?.classList.toggle("expanded", selected);
+            this.classList.toggle("active", selected && this.selectsOnInvoke);
+            
+            const isParentExpanded = this.parentView.classList.contains("expanded");
+            this.parentMenu?.classList.toggle("expanded", selected && isParentExpanded);
         }
     }
 
@@ -421,18 +422,11 @@
 
             this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-            this._items;
-            this._activeMenuItem;
-            this._selectedItem;
         }
 
         static get observedAttributes() {
             return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible", "icon-set"];
         }
-
-        get activeMenuItem() { return this._activeMenuItem }
-        set activeMenuItem(value) { this._activeMenuItem = value }
 
         get items() {
             const items = Array.from(this.querySelectorAll("fluent-navigation-view-item"));
@@ -461,6 +455,14 @@
             return this._settingsItem;
         }
 
+        get activeMenuItem() {
+            return this._activeMenuItem;
+        }
+
+        set activeMenuItem(value) {
+            this._activeMenuItem = value;
+        }
+
         connectedCallback() {
             // Defaults.
             this._updateDisplayMode();
@@ -472,23 +474,7 @@
             this.toggleAttribute("is-settings-visible", this.getAttribute("always-show-header") !== "false");
             this._updateSettingsVisible();
 
-            // Select item on load by href.
-            if(this.hasAttribute("selects-on-load"))
-            {
-                var targetItem = this.items.find(item => {
-                    return new URL(item.href, window.location).href === window.location.href;
-                });
-
-                if(targetItem)
-                {
-                    targetItem.select(true);
-
-                    var headerSrc = this.getAttribute("header-src") ?? "content";
-                    this.setAttribute("header", targetItem.getAttribute(headerSrc));
-                }
-            }
-
-            // Event listeners
+            // Nav button.
             const navButton = this.shadowRoot.querySelector(".nav-button");
             navButton.addEventListener("click", e => {
                 this.classList.toggle("expanded");
@@ -497,33 +483,37 @@
                 e.stopPropagation();
             });
 
+            // Nav pane.
+            const navPane = this.shadowRoot.querySelector(".navigation-pane");
+            navPane.addEventListener("click", e => e.stopPropagation());
+
             customElements
                 .whenDefined("fluent-navigation-view-item")
                 .then(_ => {
                     this.items.forEach(item => {
-                        if (item.hasAttribute("active")) {
-                            this._selectedItem = item;
-
-                            // TODO: No longer used or different implementation.
-                            item.parentElement?.parentElement?.setAttribute("expanded", "");
-                        }
-
                         item.addEventListener("selected", () => this._itemSelected(item));
                         item.addEventListener("invoked", () => {
                             if (!item.isParent)
                                 this._dismissPane();
                         });
+
+                        // Selects an item on load by href.
+                        const targetHref = new URL(item.href, window.location).href;
+                        if (this.hasAttribute("selects-on-load") && targetHref === window.location.href) {
+                            item.select(true);
+                            this._selectedItem = item;
+
+                            const headerSrc = this.getAttribute("header-src") ?? "content";
+                            this.setAttribute("header", item.getAttribute(headerSrc));
+                        }
                     });
                 });
-
-            const navPane = this.shadowRoot.querySelector(".navigation-pane");
-            navPane.addEventListener("click", e => e.stopPropagation());
 
             window.addEventListener("click", () => {
                 this._dismissPane();
 
-                this._activeMenuItem?.classList?.remove("expanded");
-                this._activeMenuItem?.parentItem.classList.remove("expanded");
+                this.activeMenuItem?.classList?.remove("expanded");
+                this.activeMenuItem?.parentItem.classList.remove("expanded");
             });
         }
 
@@ -582,7 +572,7 @@
 
         _itemSelected(item) {
             if (this._selectedItem !== item)
-                this._selectedItem?.removeAttribute("active");
+                this._selectedItem?.classList.remove("active");
 
             this._selectedItem = item;
 
