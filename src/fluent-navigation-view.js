@@ -6,7 +6,6 @@
         font-family: 'Segoe Fluent Icons', sans-serif;
         text-rendering: optimizeLegibility;
     }
-    
     :host {
         display: flex;
         flex-direction: column;
@@ -57,18 +56,17 @@
         width: 3px;
     }
     
-    .button span {
+    .button span,
+    .button fluent-symbol-icon,
+    .button ::slotted(*) {
         margin: 0 9px;
     }
     
-    /* Icon */
-    .icon {
-        font-size: 16px;
-        line-height: 16px;
-        width: 16px;
-    }
-    
     /* Content */
+    slot[name=icon] {
+        /*display: none;*/
+    }
+
     .content {
         flex-grow: 1;
         font-family: 'Segoe UI Variable Text', sans-serif;
@@ -100,7 +98,9 @@
     }
     </style>
     <div class='button'>
-        <span class='ms-Icon icon'></span>
+        <fluent-symbol-icon class='icon'></fluent-symbol-icon>
+        <slot name='icon'>
+        </slot>
         <span class='content'></span>
         <span class='ms-Icon chevron'></span>
     </div>
@@ -118,6 +118,10 @@
 
             this.invokedEvent = new CustomEvent("invoked");
             this.selectedEvent = new CustomEvent("selected");
+        }
+
+        static get observedAttributes() {
+            return ["icon"];
         }
 
         get parentView() {
@@ -140,16 +144,18 @@
             return this._iconSpan;
         }
 
-        get iconName() {
-            return this.getAttribute("icon");
+        get customIconSlot() {
+            this._customIconSpan ??= this.shadowRoot.querySelector("slot[name=icon]");
+            return this._customIconSpan;
         }
 
         get icon() {
-            return this.iconSpan.innerHTML;
+            return this.getAttribute("icon");
         }
 
         set icon(value) {
-            this.iconSpan.innerHTML = value;
+            this.setAttribute("icon", value);
+            this.setIcon();
         }
 
         get isParent() {
@@ -178,6 +184,8 @@
         }
 
         connectedCallback() {
+            this.setIcon();
+
             // Content.
             const content = this.shadowRoot.querySelector(".content");
             content.textContent = this.getAttribute("content");
@@ -218,8 +226,21 @@
             });
         }
 
+        attributeChangedCallback(name, oldValue, newValue) {
+            switch (name) {
+                case "icon": this.setIcon(); break;
+            }
+        }
+
         _toggleOffset() {
             this.classList.toggle("with-offset", this.parentView.classList.contains("expanded"));
+        }
+
+        setIcon() {
+            const hasCustomIcons = this.customIconSlot.assignedNodes().length > 0;
+
+            this.iconSpan.style.display = hasCustomIcons ? "none" : "inline-block";
+            this.iconSpan.symbol = this.icon;
         }
 
         select(selected) {
@@ -311,23 +332,12 @@
         align-self: start;
     }
     
-    .button span {
+    .button span,
+    .button fluent-symbol-icon {
         margin: 0 9px;
     }
     
     /* Icons */
-    .icon {
-        font-family: 'Segoe Fluent Icons', sans-serif;
-        font-size: 15px;
-        line-height: 15px;
-        text-rendering: optimizeLegibility;
-        width: 15px;
-    }
-    
-    .nav-icon::before {
-        content: '\\e700'
-    }
-    
     .button:active .nav-icon {
         transform: scaleX(.75);
     }
@@ -397,7 +407,7 @@
     </style>
     <div class='navigation-pane'>
         <div class='button nav-button'>
-            <span class='ms-Icon icon nav-icon'></span>
+            <fluent-symbol-icon symbol='GlobalNavButton' font-size='15' class='nav-icon'></fluent-symbol-icon>
             <span class='pane-title'></span>
         </div>
         <div class='menu-items-container'>
@@ -425,7 +435,7 @@
         }
 
         static get observedAttributes() {
-            return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible", "icon-set"];
+            return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible"];
         }
 
         get items() {
@@ -526,7 +536,6 @@
                 case "pane-display-mode": this._updateDisplayMode(oldValue); break;
                 case "pane-title": this._updatePaneTitle(); break;
                 case "is-settings-visible": this._updateSettingsVisible(); break;
-                case "icon-set": this._updateIcons(eval(newValue)); break;
             }
         }
 
@@ -558,16 +567,6 @@
         _updateSettingsVisible() {
             const isSettingsVisible = eval(this.getAttribute("is-settings-visible"));
             this.settingsItem.style.display = isSettingsVisible === undefined || isSettingsVisible ? "flex" : "none";
-        }
-
-        _updateIcons(iconSet) {
-            if (iconSet == null)
-                return;
-
-            this.items.forEach(item => {
-                const glyph = iconSet.find(icon => icon.name == item.iconName).glyph;
-                item.icon = `&#x${glyph};`;
-            });
         }
 
         _itemSelected(item) {
