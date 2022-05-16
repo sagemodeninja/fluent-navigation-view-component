@@ -224,6 +224,13 @@
                 if (this.selectsOnInvoke)
                     this.dispatchEvent(this.selectedEvent);
             });
+
+            this.customIconSlot.addEventListener("slotchange", e => {    
+                const hasCustomIcons = this.customIconSlot.assignedNodes().length > 0;
+
+                this.iconSpan.style.display = hasCustomIcons ? "none" : "inline-block";
+                this.customIconSlot.style.display = hasCustomIcons ? "default" : "none";
+            });
         }
 
         attributeChangedCallback(name, oldValue, newValue) {
@@ -237,10 +244,7 @@
         }
 
         setIcon() {
-            const hasCustomIcons = this.customIconSlot.assignedNodes().length > 0;
-
-            this.iconSpan.style.display = hasCustomIcons ? "none" : "inline-block";
-            this.iconSpan.symbol = this.icon;
+            this.iconSpan.setAttribute("symbol", this.icon);
         }
 
         select(selected) {
