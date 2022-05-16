@@ -1,12 +1,4 @@
 
-const segoeFluentIcons = [
-    { name: 'Home', glyph: 'e80f' },
-    { name: 'ToolTip', glyph: 'e82f' },
-    { name: 'Info', glyph: 'e946' },
-    { name: 'Mail', glyph: 'e715' },
-    { name: 'Settings', glyph: 'e713' }
-];
-
 document.addEventListener('DOMContentLoaded', e => {
     const navigationView = document.querySelector('#navigation_view');
     
