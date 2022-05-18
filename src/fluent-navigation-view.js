@@ -244,7 +244,7 @@
         }
 
         setIcon() {
-            this.iconSpan.setAttribute("symbol", this.icon);
+            this.iconSpan.setAttribute("symbol", this.icon ?? "");
         }
 
         select(selected) {
