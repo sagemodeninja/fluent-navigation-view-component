@@ -63,15 +63,12 @@
     }
     
     /* Content */
-    slot[name=icon] {
-        /*display: none;*/
-    }
-
     .content {
         flex-grow: 1;
         font-family: 'Segoe UI Variable Text', sans-serif;
         font-size: 14px;
         font-weight: 400;
+        line-height: 36px;
         overflow: hidden;
         padding-right: 20px;
         text-overflow: ellipsis;
@@ -325,7 +322,7 @@
     }
     
     .button:hover {
-        background-color: rgba(231, 231, 231, 0.78);
+        background-color: rgba(156, 156, 156, 0.1);
     }
     
     .button:active {
@@ -352,7 +349,7 @@
         font-family: 'Segoe UI Variable Text', sans-serif;
         font-size: 14px;
         font-weight: 600;
-        line-height: 14px;
+        line-height: 36px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -617,9 +614,9 @@
         width: 100%;
     }
 
-    :host(.compact-mode) {
-        border: solid 1px rgba(152, 152, 152, 0.25);
-        left: 64px;
+    :host(.compact-mode) {      
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.2), 0 calc(32 * 0.5px) calc((32 * 1px)) rgba(0, 0, 0, 0.24);
+        left: 66px;
         padding: 8px 0;
         position: fixed;
         width: auto;
@@ -632,7 +629,7 @@
 
     :host(.sub-menu-item.compact-mode.expanded)
     {
-        background-color: rgba(238, 238, 238, 0.76);
+        background-color: rgba(255, 255, 255, 0.76);
         -webkit-backdrop-filter: saturate(180%) blur(100px);
         backdrop-filter: saturate(180%) blur(100px);
     }
