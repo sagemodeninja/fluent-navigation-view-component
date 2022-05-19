@@ -393,17 +393,31 @@
     }
     
     .content-header {
-        margin-bottom: 10px;
+        display: flex;
+        padding: 0 40px;
         padding-top: 35px;
-        padding-left: 40px;
     }
     
     .content-title {
         font-family: 'Segoe UI Variable Display', sans-serif;
         font-size: 28px;
         font-weight: 600;
-        line-height: 22px;
+        line-height: 48px;
         margin: 0;
+    }
+
+    ::slotted(fluent-navigation-view-header-content) {
+        align-items: center;
+        display: flex;
+        flex-grow: 1;
+        margin-left: 10px;
+    }
+
+    @media only screen and (max-width: 768px) {
+        .content-header {
+            padding: 0 20px;
+            padding-top: 20px;
+        }
     }
     </style>
     <div class='navigation-pane'>
@@ -421,6 +435,7 @@
         <div class='content'>
             <div class='content-header'>
                 <h1 class='content-title'></h1>
+                <slot name='header-content'></slot>
             </div>
             <slot name='content-frame'></slot>
         </div>
@@ -555,7 +570,7 @@
             const alwaysShowHeader = eval(this.getAttribute("always-show-header"));
 
             this.contentTitle.textContent = title;
-            this.contentHeader.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "block" : "none";
+            this.contentHeader.style.display = alwaysShowHeader === undefined || alwaysShowHeader ? "flex" : "none";
         }
 
         _updatePaneTitle() {
@@ -751,4 +766,48 @@
     }
 
     customElements.define("fluent-navigation-view-item-header", FluentNavigationViewItemHeader);
+})();
+
+(function() {
+    const template = document.createElement("template");
+    template.innerHTML = `
+    <slot></slot>
+    `;
+    
+    class FluentNavigationViewHeaderContent extends HTMLElement {
+        constructor() {
+            super();
+
+            this.attachShadow({ mode: "open" });
+            this.shadowRoot.appendChild(template.content.cloneNode(true));
+        }
+
+        connectedCallback() {
+            this.setAttribute("slot", "header-content");
+        }
+    }
+
+    customElements.define("fluent-navigation-view-header-content", FluentNavigationViewHeaderContent);
+})();
+
+(function() {
+    const template = document.createElement("template");
+    template.innerHTML = `
+    <slot></slot>
+    `;
+    
+    class FluentNavigationViewContentFrame extends HTMLElement {
+        constructor() {
+            super();
+
+            this.attachShadow({ mode: "open" });
+            this.shadowRoot.appendChild(template.content.cloneNode(true));
+        }
+
+        connectedCallback() {
+            this.setAttribute("slot", "content-frame");
+        }
+    }
+
+    customElements.define("fluent-navigation-view-content-frame", FluentNavigationViewContentFrame);
 })();
