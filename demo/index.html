@@ -22,7 +22,11 @@
                 </fluent-navigation-view-item>
             </fluent-navigation-view-menu-items>
 
-            <div slot="content-frame">
+            <fluent-navigation-view-header-content>
+                <p>Hello World!</p>
+            </fluent-navigation-view-header-content>
+
+            <fluent-navigation-view-content-frame>
                 <div style="padding: 10px;">
                     <div>
                         <input type="radio" name="paneDisplayMode" value="leftcompact" id="leftcompact">
@@ -39,7 +43,7 @@
                 </div>
                 <button id="toggle_header">Toggle Header: TRUE</button>
                 <button id="toggle_settings">Toggle Settings: TRUE</button>
-            </div>
+            </fluent-navigation-view-content-frame>
         </fluent-navigation-view>
     </body>
 
