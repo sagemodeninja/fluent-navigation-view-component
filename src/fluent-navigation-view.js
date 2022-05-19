@@ -393,9 +393,12 @@
     }
     
     .content-header {
+        box-sizing: border-box;
         display: flex;
+        height: 80px;
         padding: 0 40px;
-        padding-top: 35px;
+        padding-top: 32px;
+        transition: height .3s, padding .3s;
     }
     
     .content-title {
@@ -411,12 +414,24 @@
         display: flex;
         flex-grow: 1;
         margin-left: 10px;
+        transition: height .3s;
+    }
+
+    ::slotted(fluent-navigation-view-content-frame) {
+        height: calc(100% - 80px);
+        overflow: auto;
+        width: 100%;
     }
 
     @media only screen and (max-width: 768px) {
         .content-header {
+            height: 63px;
             padding: 0 20px;
-            padding-top: 20px;
+            padding-top: 15px;
+        }
+
+        ::slotted(fluent-navigation-view-content-frame) {    
+            height: calc(100% - 63px);
         }
     }
     </style>
