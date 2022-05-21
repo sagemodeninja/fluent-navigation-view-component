@@ -280,12 +280,16 @@
         padding: 4px 0;
         padding-left: 12px;
         row-gap: 4px;
+        transition: width .18s;
+        transition-timing-function: ease-in;
         user-select: none;
         width: 59px;
         z-index: 1;
     }
     
     :host(.expanded) .navigation-pane {
+        transition: width .23s;
+        transition-timing-function: ease-out;
         width: 280px;
     }
     
@@ -380,13 +384,14 @@
     .content {
         background-color: #fff;
         border-left: solid 1px #e5e5e5;
-        border-radius: 6px;
         border-top: solid 1px #e5e5e5;
+        border-top-left-radius: 6px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
         height: calc(100% - 44px);
         left: 0;
+        overflow: hidden;
         position: absolute;
         top: 44px;
         width: 100%;
@@ -727,15 +732,21 @@
     :host {
         align-items: center;
         box-sizing: border-box;
-        display: none;
-        height: 36px;
+        display: flex;
+        height: 0;
+        opacity: 0;
         padding-left: 12px;
+        transition: height .15s;
+        transition-timing-function: ease-out;
         user-select: none;
         width: 100%;
     }
 
     :host(.visible) {
-        display: flex;
+        height: 36px;
+        opacity: 1;
+        transition: opacity .25s, height .18s;
+        transition-timing-function: ease-in;
     }
 
     :host .content {
