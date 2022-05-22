@@ -222,7 +222,7 @@
                     this.dispatchEvent(this.selectedEvent);
             });
 
-            this.customIconSlot.addEventListener("slotchange", e => {    
+            this.customIconSlot.addEventListener("slotchange", e => {
                 const hasCustomIcons = this.customIconSlot.assignedNodes().length > 0;
 
                 this.iconSpan.style.display = hasCustomIcons ? "none" : "inline-block";
@@ -246,7 +246,7 @@
 
         select(selected) {
             this.classList.toggle("active", selected && this.selectsOnInvoke);
-            
+
             const isParentExpanded = this.parentView.classList.contains("expanded");
             this.parentMenu?.classList.toggle("expanded", selected && isParentExpanded);
         }
@@ -260,7 +260,7 @@
     template.innerHTML = `
     <style>
     :host {
-        background-color: #f2f2f2;
+        background-color: #f9f9f9;
         display: flex;
         height: 100%;
         left: 0;
@@ -268,50 +268,44 @@
         top: 0;
         width: 100%;
     }
-    
+
+    .navigation-frame,
     .navigation-pane {
-        background-color: #f2f2f2;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        height: calc(100% - 2px);
-        margin: 1px 0 1px 1px;
-        max-height: calc(100% - 2px); /* TODO: Check if important. */
-        padding: 4px 0;
-        padding-left: 12px;
+        height: 100%;
+        left: 0;
+        position: absolute;
         row-gap: 4px;
-        transition: width .18s;
-        transition-timing-function: ease-in;
+        top: 0;
+    }
+
+    .navigation-frame {
+        padding: 4px 0;
         user-select: none;
-        width: 59px;
         z-index: 1;
     }
     
-    :host(.expanded) .navigation-pane {
-        transition: width .23s;
-        transition-timing-function: ease-out;
+    .navigation-pane {
+        background-color: #f2f2f2;
+        left: -281px;
+        max-height: 100%; /* TODO: Check if important. */
+        padding-bottom: 8px;
+        padding-top: 44px; /* 36px height, 8px total padding. */
         width: 280px;
     }
-    
-    :host(.leftcompact) .navigation-pane {
-        left: 0;
-        position: absolute;
-        top: 0;
-    }
-    
-    :host(.leftcompact.expanded) .navigation-pane {
+
+    :host(.expanded) .navigation-pane {
         background-color: rgba(238, 238, 238, 0.76);
-        -webkit-backdrop-filter: saturate(180%) blur(100px);
         backdrop-filter: saturate(180%) blur(100px);
-        border: solid 1px #e5e5e5;
+        border-right: solid 1px #e5e5e5;
         border-bottom-right-radius: 5px;
         border-top-right-radius: 5px;
-        padding: 3px 0;
-        padding-left: 11px;
     }
     
     /* Button */
-    .button {
+    .nav-button {
         align-items: center;
         background-color: transparent;
         border-radius: 5px;
@@ -323,28 +317,34 @@
         min-height: 36px;
         padding: 0 3px;
         position: relative;
+        z-index: 2;
     }
     
-    .button:hover {
+    .nav-button:hover {
         background-color: rgba(156, 156, 156, 0.1);
     }
     
-    .button:active {
+    .nav-button:active {
         color: #838383 !important;
     }
     
-    :host(.no-title) .button {
+    :host(.no-title) .nav-button {
         align-self: start;
     }
     
-    .button span,
-    .button fluent-symbol-icon {
+    .nav-button span,
+    .nav-button fluent-symbol-icon {
         margin: 0 9px;
     }
     
     /* Icons */
-    .button:active .nav-icon {
-        transform: scaleX(.75);
+    .nav-button .nav-icon {
+        transition: transform .1s;
+        transition-timing-function: ease-in;
+    }
+
+    .nav-button:active .nav-icon {
+        transform: scaleX(.50);
     }
     
     /* Pane title */
@@ -368,24 +368,13 @@
         overflow-y: auto;
     }
     
-    .settings-item {
-        margin: 8px 0;
-    }
-    
     .content-frame {
         flex-grow: 1;
         position: relative;
     }
-    
-    :host(.leftcompact) .content-frame {
-        margin-left: 60px;
-    }
-    
+
     .content {
-        background-color: #fff;
-        border-left: solid 1px #e5e5e5;
-        border-top: solid 1px #e5e5e5;
-        border-top-left-radius: 6px;
+        background-color: #f9f9f9;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -400,9 +389,8 @@
     .content-header {
         box-sizing: border-box;
         display: flex;
-        height: 80px;
-        padding: 0 40px;
-        padding-top: 32px;
+        height: 48px;
+        padding-left: 20px;
         transition: height .3s, padding .3s;
     }
     
@@ -423,34 +411,78 @@
     }
 
     ::slotted(fluent-navigation-view-content-frame) {
-        height: calc(100% - 80px);
+        height: calc(100% - 63px);
         overflow: auto;
         width: 100%;
     }
 
-    @media only screen and (max-width: 768px) {
-        .content-header {
-            height: 63px;
-            padding: 0 20px;
-            padding-top: 15px;
+    /* Tablet */
+    @media only screen and (min-width: 768px) {
+        :host {
+            background-color: #f2f2f2;
         }
 
-        ::slotted(fluent-navigation-view-content-frame) {    
-            height: calc(100% - 63px);
+        .navigation-pane {
+            left: 0;
+            width: 47px;
+        }
+
+        .content-frame {
+            margin-left: 47px;
+        }
+
+        .content {
+            background-color: #fff;
+            border-left: solid 1px #e5e5e5;
+            border-top: solid 1px #e5e5e5;
+            border-top-left-radius: 6px;
+        }
+
+        .content-header {
+            height: 80px;
+            padding-left: 40px;
+            padding-top: 32px;
+        }
+
+        ::slotted(fluent-navigation-view-content-frame) {
+            height: calc(100% - 80px);
+        }
+    }
+
+    /* Desktop */
+    @media only screen and (min-width: 992px) {
+        :host(:not(.leftcompact)) .navigation-frame {
+            position: relative;
+        }
+    
+        :host(:not(.leftcompact)) .navigation-pane {
+            padding-bottom: 4px;
+            padding-top: 0;
+            position: relative;
+        }
+
+        :host(.expanded:not(.leftcompact)) .navigation-pane {
+            border: none;
+            border-radius: 0;
+        }
+
+        :host(:not(.leftcompact)) .content-frame {
+            margin-left: 0;
         }
     }
     </style>
-    <div class='navigation-pane'>
-        <div class='button nav-button'>
+    <div class='navigation-frame'>
+        <div class='nav-button'>
             <fluent-symbol-icon symbol='GlobalNavButton' font-size='15' class='nav-icon'></fluent-symbol-icon>
             <span class='pane-title'></span>
         </div>
-        <div class='menu-items-container'>
-            <slot></slot>
+        <div class='navigation-pane'>
+            <div class='menu-items-container'>
+                <slot></slot>
+            </div>
+            <fluent-navigation-view-item icon='Settings' content='Settings' class='settings-item'></fluent-navigation-view-item>
         </div>
-        <fluent-navigation-view-item icon='Settings' content='Settings' class='settings-item'>
     </div>
-    </fluent-navigation-view-item>
     <div class='content-frame'>
         <div class='content'>
             <div class='content-header'>
@@ -468,10 +500,17 @@
 
             this.attachShadow({ mode: "open" });
             this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+            this.isExpanded = false;
         }
 
         static get observedAttributes() {
             return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible"];
+        }
+
+        get navigationPane() {
+            this._navigationPane ??= this.shadowRoot.querySelector(".navigation-pane");
+            return this._navigationPane;
         }
 
         get items() {
@@ -524,8 +563,26 @@
             const navButton = this.shadowRoot.querySelector(".nav-button");
             navButton.addEventListener("click", e => {
                 this.classList.toggle("expanded");
-                this.dispatchEvent(new CustomEvent("invoked"));
+                this.isExpanded = this.classList.contains("expanded");
 
+                const width = window.innerWidth;
+                if (width < 768) {
+                    anime({
+                        targets: this.navigationPane,
+                        left: this.isExpanded ? "0px" : "-281px",
+                        duration: 150,
+                        easing: "easeInOutQuad"
+                    });
+                } else if (width >= 768) {
+                    anime({
+                        targets: this.navigationPane,
+                        width: this.isExpanded ? "280px" : "47px",
+                        duration: 150,
+                        easing: "easeInOutQuad"
+                    });
+                }
+
+                this.dispatchEvent(new CustomEvent("invoked"));
                 e.stopPropagation();
             });
 
@@ -561,6 +618,29 @@
                 this.activeMenuItem?.classList?.remove("expanded");
                 this.activeMenuItem?.parentItem.classList.remove("expanded");
             });
+
+            window.addEventListener("resize", e => {
+                const width = window.innerWidth;
+                const style = this.navigationPane.style;
+                const mode = this.getAttribute("pane-display-mode");
+
+                if (width < 768) {
+                    style.left = "-281px";
+                    style.width = "280px";
+                }
+                else if (width >= 768) {
+                    style.left = "0px";
+                    style.width = width >= 992 && mode === "left" && this.isExpanded ? "280px" : "47px";
+                }
+
+                if (width < 992) {
+                    this.classList.toggle("expanded", false);
+                    this.dispatchEvent(new CustomEvent("invoked"));
+                } else {
+                    this.classList.toggle("expanded", mode === "left" && this.isExpanded);
+                    this.dispatchEvent(new CustomEvent("invoked"));
+                }
+            });
         }
 
         attributeChangedCallback(name, oldValue, newValue) {
@@ -580,7 +660,12 @@
 
             this.classList.add(mode ?? "leftcompact");
             this.classList.toggle(old, old === mode);
-            this.classList.toggle("expanded", mode === "left");
+
+            this.isExpanded = mode === "left" && window.innerWidth > 992;
+            this.classList.toggle("expanded", this.isExpanded);
+
+            if (this.isExpanded)
+                this.navigationPane.style.width = "280px";
 
             this.dispatchEvent(new CustomEvent("invoked"));
         }
@@ -625,9 +710,17 @@
         _dismissPane() {
             const classes = this.classList;
 
-            if (classes.contains("leftcompact") && classes.contains("expanded")) {
+            if ((classes.contains("leftcompact") || window.innerWidth < 768) && classes.contains("expanded")) {
                 this.classList.remove("expanded");
                 this.dispatchEvent(new CustomEvent("invoked"));
+
+                if(window.innerWidth < 768)
+                    anime({
+                        targets: this.navigationPane,
+                        left: "-281px",
+                        duration: 150,
+                        easing: "easeInOutQuad"
+                    });
             }
         }
     }
@@ -651,7 +744,7 @@
 
     :host(.compact-mode) {      
         box-shadow: 0 0 2px rgba(0, 0, 0, 0.2), 0 calc(32 * 0.5px) calc((32 * 1px)) rgba(0, 0, 0, 0.24);
-        left: 66px;
+        left: 54px;
         padding: 8px 0;
         position: fixed;
         width: auto;
@@ -733,20 +826,11 @@
         align-items: center;
         box-sizing: border-box;
         display: flex;
-        height: 0;
-        opacity: 0;
-        padding-left: 12px;
-        transition: height .15s;
-        transition-timing-function: ease-out;
-        user-select: none;
-        width: 100%;
-    }
-
-    :host(.visible) {
         height: 36px;
         opacity: 1;
-        transition: opacity .25s, height .18s;
-        transition-timing-function: ease-in;
+        padding-left: 12px;
+        user-select: none;
+        width: 100%;
     }
 
     :host .content {
@@ -757,6 +841,25 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    /* Desktop */
+    @media only screen and (min-width: 768px) {
+        :host {
+            transition: height .15s;
+            transition-timing-function: ease-out;
+        }
+
+        :host(:not(.visible))
+        {
+            height: 0;
+            opacity: 0;
+        }
+        
+        :host(.visible) {
+            transition: opacity .25s, height .18s;
+            transition-timing-function: ease-in;
+        }
     }
     </style>
     <span class='content'></span>
@@ -799,7 +902,7 @@
     template.innerHTML = `
     <slot></slot>
     `;
-    
+
     class FluentNavigationViewHeaderContent extends HTMLElement {
         constructor() {
             super();
@@ -821,7 +924,7 @@
     template.innerHTML = `
     <slot></slot>
     `;
-    
+
     class FluentNavigationViewContentFrame extends HTMLElement {
         constructor() {
             super();
