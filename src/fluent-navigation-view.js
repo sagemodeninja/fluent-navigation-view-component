@@ -127,7 +127,7 @@
             this.setAttribute("icon", value);
             this.setIcon();
         }
-        
+
         get content() {
             return this.getAttribute("content");
         }
@@ -290,7 +290,6 @@
         width: 100%;
     }
 
-    .navigation-frame,
     .navigation-pane {
         box-sizing: border-box;
         display: flex;
@@ -301,12 +300,6 @@
         row-gap: 4px;
         top: 0;
     }
-
-    .navigation-frame {
-        padding: 4px 0;
-        user-select: none;
-        z-index: 1;
-    }
     
     .navigation-pane {
         background-color: #f2f2f2;
@@ -315,6 +308,7 @@
         padding-bottom: 8px;
         padding-top: 44px; /* 36px height, 8px total padding. */
         width: 280px;
+        z-index: 2;
     }
 
     :host(.expanded) .navigation-pane {
@@ -334,11 +328,13 @@
         color: #1b1b1b;
         display: flex;
         height: 36px;
-        margin: 0 4px;
+        left: 4px;
         min-height: 36px;
         padding: 0 3px;
-        position: relative;
-        z-index: 2;
+        position: absolute;
+        top: 4px;
+        user-select: none;
+        z-index: 3;
     }
     
     .nav-button:hover {
@@ -351,6 +347,10 @@
     
     :host(.no-title) .nav-button {
         align-self: start;
+    }
+
+    :host(.expanded:not(.no-title)) .nav-button {
+        min-width: 272px;
     }
     
     .nav-button span,
@@ -392,6 +392,7 @@
     .content-frame {
         flex-grow: 1;
         position: relative;
+        z-index: 1;
     }
 
     .content {
@@ -472,13 +473,7 @@
 
     /* Desktop */
     @media only screen and (min-width: 992px) {
-        :host(:not(.leftcompact)) .navigation-frame {
-            position: relative;
-        }
-    
         :host(:not(.leftcompact)) .navigation-pane {
-            padding-bottom: 4px;
-            padding-top: 0;
             position: relative;
         }
 
@@ -492,17 +487,15 @@
         }
     }
     </style>
-    <div class='navigation-frame'>
-        <div class='nav-button'>
-            <fluent-symbol-icon symbol='GlobalNavButton' font-size='15' class='nav-icon'></fluent-symbol-icon>
-            <span class='pane-title'></span>
+    <div class='nav-button'>
+        <fluent-symbol-icon symbol='GlobalNavButton' font-size='15' class='nav-icon'></fluent-symbol-icon>
+        <span class='pane-title'></span>
+    </div>
+    <div class='navigation-pane'>
+        <div class='menu-items-container'>
+            <slot></slot>
         </div>
-        <div class='navigation-pane'>
-            <div class='menu-items-container'>
-                <slot></slot>
-            </div>
-            <fluent-navigation-view-item icon='Settings' content='Settings' class='settings-item'></fluent-navigation-view-item>
-        </div>
+        <fluent-navigation-view-item icon='Settings' content='Settings' class='settings-item'></fluent-navigation-view-item>
     </div>
     <div class='content-frame'>
         <div class='content'>
@@ -537,7 +530,7 @@
         set header(value) {
             this.setAttribute("header", value);
         }
-        
+
         get paneTitle() {
             return this.getAttribute("pane-title") ?? "";
         }
@@ -545,7 +538,7 @@
         set paneTitle(value) {
             this.setAttribute("pane-title", value);
         }
-        
+
         get alwaysShowHeader() {
             return this.getAttribute("always-show-header") !== "false";
         }
@@ -553,7 +546,7 @@
         set alwaysShowHeader(value) {
             this.setAttribute("always-show-header", value);
         }
-        
+
         get isSettingsVisible() {
             return this.getAttribute("is-settings-visible") !== "false";
         }
