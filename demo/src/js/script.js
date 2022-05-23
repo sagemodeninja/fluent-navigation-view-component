@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', e => {
         alwaysShowHeader = !alwaysShowHeader;
 
         toggleHeaderBtn.innerHTML = `Toggle Header: ${alwaysShowHeader.toString().toUpperCase()}`;
-        navigationView.toggleAttribute('always-show-header', alwaysShowHeader);
+        navigationView.setAttribute("always-show-header", alwaysShowHeader);
     });
 
     toggleSettingsBtn.addEventListener('click', () => {
