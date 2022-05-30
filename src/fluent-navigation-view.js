@@ -1,3 +1,5 @@
+import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/index.min.js";
+
 (function () {
     const template = document.createElement("template");
     template.innerHTML = `
@@ -313,6 +315,7 @@
 
     :host(.expanded) .navigation-pane {
         background-color: rgba(238, 238, 238, 0.76);
+        -webkit-backdrop-filter: saturate(180%) blur(100px);
         backdrop-filter: saturate(180%) blur(100px);
         border-right: solid 1px #e5e5e5;
         border-bottom-right-radius: 5px;
@@ -475,6 +478,12 @@
     @media only screen and (min-width: 992px) {
         :host(:not(.leftcompact)) .navigation-pane {
             position: relative;
+        }
+        
+        :host(.expanded) .navigation-pane {
+            background-color: #f2f2f2;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
         }
 
         :host(.expanded:not(.leftcompact)) .navigation-pane {
