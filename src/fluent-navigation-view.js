@@ -652,17 +652,10 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
                             if (!item.isParent)
                                 this.dismissPane();
                         });
-
-                        // Selects an item on load by href.
-                        const targetHref = new URL(item.href, window.location).href;
-                        if (this.hasAttribute("selects-on-load") && targetHref === window.location.href) {
-                            item.setSelected(true);
-                            this._selectedItem = item;
-
-                            const headerSrc = this.getAttribute("header-src") ?? "content";
-                            this.setAttribute("header", item.getAttribute(headerSrc));
-                        }
                     });
+
+                    // Selects an item on load by href.
+                    this.navigate(window.location.toString());
                 });
 
             window.addEventListener("click", () => {
@@ -736,6 +729,31 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
 
         setSettingsVisibility() {
             this.settingsItem.style.display = this.isSettingsVisible ? "flex" : "none";
+        }
+
+        navigate(href) {
+            this.items.every(item => {
+                if (item.href) {
+                    let targetHref = window.location.href;
+                    let itemHref = new URL(item.href, href).href;
+                    
+                    // Cleanup.
+                    if (targetHref.endsWith("/")) targetHref = targetHref.slice(0, -1);
+                    if (itemHref.endsWith("/")) itemHref = itemHref.slice(0, -1);
+
+                    if (this.hasAttribute("selects-on-load") && itemHref === targetHref) {
+                        item.setSelected(true);
+                        this._selectedItem = item;
+
+                        const headerSrc = this.getAttribute("header-src") ?? "content";
+                        this.setAttribute("header", item.getAttribute(headerSrc));
+
+                        return false;
+                    }
+                }
+
+                return true;
+            });
         }
 
         onItemSelected(item) {
