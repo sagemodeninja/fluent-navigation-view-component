@@ -736,14 +736,14 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
                 if (item.href) {
                     let targetHref = window.location.href;
                     let itemHref = new URL(item.href, href).href;
-                    
+
                     // Cleanup.
                     if (targetHref.endsWith("/")) targetHref = targetHref.slice(0, -1);
                     if (itemHref.endsWith("/")) itemHref = itemHref.slice(0, -1);
 
                     if (this.hasAttribute("selects-on-load") && itemHref === targetHref) {
                         item.setSelected(true);
-                        this._selectedItem = item;
+                        this.toggleSelection(item);
 
                         const headerSrc = this.getAttribute("header-src") ?? "content";
                         this.setAttribute("header", item.getAttribute(headerSrc));
@@ -757,11 +757,7 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
         }
 
         onItemSelected(item) {
-            if (this._selectedItem !== item)
-                this._selectedItem?.classList.remove("active");
-
-            this._selectedItem = item;
-
+            this.toggleSelection(item);
             const eventDetails = {
                 sender: this,
                 args: {
@@ -773,6 +769,13 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
             this.dispatchEvent(new CustomEvent("selectionchanged", { bubbles: true, detail: eventDetails }));
         }
 
+        toggleSelection(item) {
+            if (this._selectedItem !== item)
+                this._selectedItem?.classList.remove("active");
+
+            this._selectedItem = item;
+        }
+
         dismissPane() {
             const classes = this.classList;
 
@@ -780,7 +783,7 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
                 this.classList.remove("expanded");
                 this.dispatchEvent(new CustomEvent("invoked"));
 
-                if(window.innerWidth < 768)
+                if (window.innerWidth < 768)
                     anime({
                         targets: this.navigationPane,
                         left: "-281px",
