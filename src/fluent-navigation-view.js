@@ -190,7 +190,7 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
             this._contentSpan ??= this.shadowRoot.querySelector(".content");
             return this._contentSpan;
         }
-
+        
         /* Helpers */
         get isParent() {
             return this.subMenu !== null;
@@ -597,6 +597,11 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
             return this._settingsItem;
         }
 
+        get itemsSlot() {
+            this._itemsSlot ??= this.shadowRoot.querySelectorAll("slot")[0];
+            return this._itemsSlot;
+        }
+
         get activeMenuItem() {
             return this._activeMenuItem;
         }
@@ -642,10 +647,11 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
             // Nav pane.
             const navPane = this.shadowRoot.querySelector(".navigation-pane");
             navPane.addEventListener("click", e => e.stopPropagation());
+            
+            this.itemsSlot.addEventListener("slotchange", () => {
+                var menuItem = this.itemsSlot.assignedElements()[0];
 
-            customElements
-                .whenDefined("fluent-navigation-view-item")
-                .then(_ => {
+                menuItem.addEventListener("itemschange", () => {
                     this.items.forEach(item => {
                         item.addEventListener("selected", () => this.onItemSelected(item));
                         item.addEventListener("invoked", () => {
@@ -657,6 +663,7 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
                     // Selects an item on load by href.
                     this.navigate(window.location.toString());
                 });
+            });
 
             window.addEventListener("click", () => {
                 this.dismissPane();
@@ -854,8 +861,18 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
             this._parentItem ??= this.closest("fluent-navigation-view-item");
             return this._parentItem;
         }
+        
+        get itemsSlot() {
+            this._itemsSlot ??= this.shadowRoot.querySelector("slot");
+            return this._itemsSlot;
+        }
 
         connectedCallback() {
+            this.itemsSlot.addEventListener("slotchange", () => {
+                const itemsChangeEvent = new CustomEvent("itemschange");
+                this.dispatchEvent(itemsChangeEvent);
+            });
+
             if (this.parentItem === null)
                 return;
 
