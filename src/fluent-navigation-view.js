@@ -436,7 +436,7 @@ import anime from "https://cdn.jsdelivr.net/gh/juliangarnier/anime@v3.2.1/src/in
     }
 
     ::slotted(fluent-navigation-view-content-frame) {
-        height: calc(100% - 63px);
+        height: calc(100% - 48px);
         overflow: auto;
         width: 100%;
     }
