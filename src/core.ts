@@ -8,10 +8,13 @@ export class ComponentRegistry {
     public register(...components: (typeof CustomComponent)[]) {
         components.forEach(component => {
             const customElement = component.customElement;
-            const template = document.createElement('template');
+            const templates = ComponentRegistry.templates;
 
+            if (customElement in templates) return;
+
+            const template = document.createElement('template');
             template.innerHTML = `<style>${component.styles ?? ''}</style>`;
-            ComponentRegistry.templates[customElement] = template;
+            templates[customElement] = template;
 
             customElements.define(customElement, component);
         });
