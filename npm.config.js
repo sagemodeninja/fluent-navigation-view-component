@@ -6,6 +6,8 @@ module.exports = {
     output: {
         filename: 'index.bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        library: 'FluentNavigationViewComponent',
+        libraryTarget: 'umd',
         clean: true,
     },
     module: {
