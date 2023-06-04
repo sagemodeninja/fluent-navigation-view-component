@@ -1,10 +1,14 @@
 {
-  "name": "fluent-navigation-view-component",
-  "version": "1.3.11",
+  "name": "@sagemodeninja/fluent-navigation-view-component",
+  "version": "2.0.12",
   "description": "Web component implementation of Windows 11's Navigation View",
   "main": "dist/index.bundle.js",
+  "types": "@types/fluent-navigation-view-component.d.ts",
+  "files": ["dist","@types"],
   "scripts": {
-    "build": "webpack",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production",
+    "prepublishOnly": "webpack --config npm.config.js --mode=production",
     "start": "webpack serve"
   },
   "repository": {

@@ -1,5 +1,5 @@
-import { CustomComponent } from '.';
 import anime from 'animejs/lib/anime.es.js';
+import { CustomComponent } from './core';
 import { FluentNavigationViewItem } from './fluent-navigation-view-item';
 import { FluentNavigationViewMenuItems } from './fluent-navigation-view-menu-items';
 

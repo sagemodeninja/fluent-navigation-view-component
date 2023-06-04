@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-    mode: 'development',
+    target: 'web',
     entry: {
         index: './src/index.ts',
         demo: './src/app.ts',
@@ -55,5 +55,5 @@ module.exports = {
       https: false,
       port: 3008,
     },
-    devtool: "source-map"
+    devtool: "source-map",
 }

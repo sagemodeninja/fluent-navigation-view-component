@@ -1,4 +1,4 @@
-import { CustomComponent } from '.';
+import { CustomComponent } from './core';
 import { FluentNavigationView } from './fluent-navigation-view';
 
 export class FluentNavigationViewItemHeader extends CustomComponent {
