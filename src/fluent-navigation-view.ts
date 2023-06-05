@@ -1,5 +1,5 @@
-import { CustomComponent } from '.';
 import anime from 'animejs/lib/anime.es.js';
+import { CustomComponent } from './core';
 import { FluentNavigationViewItem } from './fluent-navigation-view-item';
 import { FluentNavigationViewMenuItems } from './fluent-navigation-view-menu-items';
 
@@ -498,7 +498,6 @@ export class FluentNavigationView extends CustomComponent {
     }
 
     onItemSelected(item) {
-        this.toggleSelection(item);
         const eventDetails = {
             sender: this,
             args: {
@@ -506,8 +505,10 @@ export class FluentNavigationView extends CustomComponent {
                 selectedItem: item
             }
         };
+        const event = new CustomEvent('selectionchanged', { bubbles: true, detail: eventDetails });
 
-        this.dispatchEvent(new CustomEvent("selectionchanged", { bubbles: true, detail: eventDetails }));
+        this.toggleSelection(item);
+        this.dispatchEvent(event);
     }
 
     toggleSelection(item) {

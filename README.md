@@ -9,6 +9,12 @@ Or, see the [demo site](https://dev.garyantier.com/fluent/navigation) for exampl
 
 <!-- TODO: Add wiki/documentation. -->
 
+## Installation
+
+From within your project, run:
+
+```npm i @sagemodeninja/fluent-navigation-view-component```
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.

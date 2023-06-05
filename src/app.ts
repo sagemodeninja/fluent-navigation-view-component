@@ -1,7 +1,8 @@
 import '/public/css/style.css';
 import '/public/fonts/segoe-fluent-icons/segoe-fluent-icons.css';
 import '/public/fonts/segoe-ui-variable/segoe-ui-variable.css';
-import { ComponentRegistry } from '.';
+
+import { ComponentRegistry } from './core';
 import { 
     FluentNavigationViewContentFrame, 
     FluentNavigationViewHeaderContent, 
