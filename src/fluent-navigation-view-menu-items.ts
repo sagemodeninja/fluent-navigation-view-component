@@ -6,7 +6,21 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
     static customElement = 'fluent-navigation-view-menu-items';
     static styles = `
         :host {
-            border-radius: 5px;
+            --background-color: #f3f3f3;
+            --background-color-gradient: rgb(243 243 243 / 50%);
+            --navigation-pane-shadow: rgb(0 0 0 / 14%);
+            --stroke-card-default: #e5e5e5;
+        }
+
+        :host([data-color-scheme=dark]) {
+            --background-color: #202020;
+            --background-color-gradient: rgb(32 32 32 / 80%);
+            --navigation-pane-shadow: rgb(0 0 0 / 26%);
+            --stroke-card-default: rgb(255 255 255 / 8.37%);
+        }
+
+        :host {
+            border-radius: 7px;
             display: flex;
             flex-direction: column;
             font-size: 15px;
@@ -15,8 +29,9 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
             width: 100%;
         }
 
-        :host(.compact-mode) {      
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2), 0 calc(32 * 0.5px) calc((32 * 1px)) rgba(0, 0, 0, 0.24);
+        :host(.compact-mode) {
+            border: solid 1px var(--stroke-card-default);
+            box-shadow: 0px 8px 16px var(--navigation-pane-shadow);
             left: 54px;
             padding: 8px 0;
             position: fixed;
@@ -30,7 +45,8 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
 
         :host(.sub-menu-item.compact-mode.expanded)
         {
-            background-color: rgba(255, 255, 255, 0.76);
+            background: linear-gradient(0deg, var(--background-color-gradient), var(--background-color-gradient)), var(--background-color);
+            background-blend-mode: color, luminosity;
             -webkit-backdrop-filter: saturate(180%) blur(100px);
             backdrop-filter: saturate(180%) blur(100px);
         }
@@ -47,17 +63,17 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
 
     /* DOM */
     get parentView() {
-        this._parentView ??= this.closest("fluent-navigation-view");
+        this._parentView ??= this.closest('fluent-navigation-view');
         return this._parentView;
     }
 
     get parentItem() {
-        this._parentItem ??= this.closest("fluent-navigation-view-item");
+        this._parentItem ??= this.closest('fluent-navigation-view-item');
         return this._parentItem;
     }
-    
+
     get itemsSlot() {
-        this._itemsSlot ??= this.shadowRoot.querySelector("slot");
+        this._itemsSlot ??= this.shadowRoot.querySelector('slot');
         return this._itemsSlot;
     }
 
@@ -66,37 +82,39 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
     }
 
     connectedCallback() {
-        this.itemsSlot.addEventListener("slotchange", () => {
-            const itemsChangeEvent = new CustomEvent("itemschange");
+        this.itemsSlot.addEventListener('slotchange', () => {
+            const itemsChangeEvent = new CustomEvent('itemschange');
             this.dispatchEvent(itemsChangeEvent);
         });
 
-        if (this.parentItem === null)
-            return;
+        if (this.parentItem === null) return;
 
-        this.classList.add("sub-menu-item");
+        this.classList.add('sub-menu-item');
         this.toggleMode();
 
-        this.parentView.addEventListener("invoked", this.toggleMode);
-        this.parentItem.addEventListener("invoked", () => {
-            const expanded = this.classList.toggle("expanded");
+        this.parentView.addEventListener('invoked', this.toggleMode);
+        this.parentItem.addEventListener('invoked', () => {
+            const expanded = this.classList.toggle('expanded');
 
-            this.parentItem.classList.toggle("expanded", expanded);
-            this.parentView.activeMenuItem = expanded && this.classList.contains("compact-mode") ? this : null;
+            this.parentItem.classList.toggle('expanded', expanded);
+            this.parentView.activeMenuItem =
+                expanded && this.classList.contains('compact-mode')
+                    ? this
+                    : null;
         });
 
-        this.addEventListener("click", e => e.stopPropagation());
+        this.addEventListener('click', e => e.stopPropagation());
     }
 
     /* Functions */
     toggleMode() {
-        const compactMode = !this.parentView.classList.contains("expanded");
+        const compactMode = !this.parentView.classList.contains('expanded');
 
-        this.classList.toggle("compact-mode", compactMode);
+        this.classList.toggle('compact-mode', compactMode);
 
         if (compactMode) {
-            this.classList.toggle("expanded", false);
-            this.parentItem.classList.remove("expanded");
+            this.classList.toggle('expanded', false);
+            this.parentItem.classList.remove('expanded');
         }
     }
 }

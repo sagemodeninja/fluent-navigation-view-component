@@ -13,7 +13,7 @@ Or, see the [demo site](https://dev.garyantier.com/fluent/navigation) for exampl
 
 From within your project, run:
 
-```npm i @sagemodeninja/fluent-navigation-view-component```
+`npm i @sagemodeninja/fluent-navigation-view-component`
 
 ## Contributing
 
@@ -22,22 +22,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 ### Set up
 
 Initialize repo:
+
 ```cli
 git clone https://github.com/sagemodeninja/fluent-navigation-view-component.git
 cd fluent-navigation-view-component
 ```
 
-Install the necessary dependencies: 
+Install the necessary dependencies:
+
 ```
 npm install
 ```
 
 Build the project:
+
 ```
 npm run build
 ```
 
 Run a local demo:
+
 ```
 npm start
 ```

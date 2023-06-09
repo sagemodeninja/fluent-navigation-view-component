@@ -1,7 +1,7 @@
 ---
 name: 🙋 Feature Request
 about: Want us to add something?
-title: "feat: add [what] to/in [where]"
+title: 'feat: add [what] to/in [where]'
 labels: 'status:triage'
 ---
 

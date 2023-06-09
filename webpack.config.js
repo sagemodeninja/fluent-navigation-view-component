@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     target: 'web',
@@ -17,43 +17,43 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: 'public/index.html',
-            chunks: ['demo']
+            chunks: ['demo'],
         }),
         new HtmlWebpackPlugin({
             filename: 'about.html',
             template: 'public/about.html',
-            chunks: ['demo']
+            chunks: ['demo'],
         }),
         new HtmlWebpackPlugin({
             filename: 'contact.html',
             template: 'public/contact.html',
-            chunks: ['demo']
+            chunks: ['demo'],
         }),
         new MiniCssExtractPlugin(),
     ],
     module: {
         rules: [
             {
-              test: /\.css$/i,
-              use: [MiniCssExtractPlugin.loader, 'css-loader'],
+                test: /\.css$/i,
+                use: [MiniCssExtractPlugin.loader, 'css-loader'],
             },
             {
                 test: /\.ts$/,
                 use: 'ts-loader',
-                exclude: /node_modules/
+                exclude: /node_modules/,
             },
-        ]
+        ],
     },
     resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.js'],
     },
     devServer: {
-      static: {
-        directory: path.join(__dirname, 'dist'),
-      },
-      compress: true,
-      https: false,
-      port: 3008,
+        static: {
+            directory: path.join(__dirname, 'dist'),
+        },
+        compress: true,
+        https: false,
+        port: 3008,
     },
-    devtool: "source-map",
-}
+    devtool: 'source-map',
+};
