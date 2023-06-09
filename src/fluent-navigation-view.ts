@@ -7,7 +7,28 @@ export class FluentNavigationView extends CustomComponent {
     static customElement = 'fluent-navigation-view';
     static styles = `
         :host {
-            background-color: #fff;
+            --background-color: #f3f3f3;
+            --background-color-gradient: rgb(243 243 243 / 50%);
+            --background-fill-layer-default: rgb(255 255 255 / 50%);
+            --fill-text-primary: rgb(0 0 0 / 89.56%);
+            --navigation-pane-shadow: rgb(0 0 0 / 14%);
+            --stroke-card-default: #e5e5e5;
+        }
+
+        :host([data-color-scheme=dark]) {
+            --background-color: #202020;
+            --background-color-gradient: rgb(32 32 32 / 80%);
+            --background-fill-layer-default: rgb(58 58 58 / 30%);
+            --fill-text-primary: #ffffff;
+            --navigation-pane-shadow: rgb(0 0 0 / 26%);
+            --stroke-card-default: rgb(255 255 255 / 8.37%);
+
+            color-scheme: dark;
+        }
+
+        :host {
+            background: linear-gradient(0deg, var(--background-color-gradient), var(--background-color-gradient)), var(--background-color);
+            background-blend-mode: color, luminosity;
             display: flex;
             height: 100%;
             left: 0;
@@ -28,7 +49,6 @@ export class FluentNavigationView extends CustomComponent {
         }
         
         .navigation-pane {
-            background-color: #f2f2f2;
             left: -281px;
             max-height: 100%; /* TODO: Check if important. */
             padding-bottom: 8px;
@@ -38,19 +58,23 @@ export class FluentNavigationView extends CustomComponent {
         }
 
         :host(.expanded) .navigation-pane {
-            background-color: rgba(238, 238, 238, 0.76);
+            background: linear-gradient(0deg, var(--background-color-gradient),
+                var(--background-color-gradient)), 
+                var(--background-color);
+            background-blend-mode: color, luminosity;
             -webkit-backdrop-filter: saturate(180%) blur(100px);
             backdrop-filter: saturate(180%) blur(100px);
-            border-right: solid 1px #e5e5e5;
-            border-bottom-right-radius: 5px;
-            border-top-right-radius: 5px;
+            border-right: solid 1px var(--stroke-card-default);
+            border-bottom-right-radius: 7px;
+            border-top-right-radius: 7px;
+            box-shadow: 0px 8px 16px var(--navigation-pane-shadow);
         }
         
         /* Button */
         .nav-button {
             align-items: center;
             background-color: transparent;
-            border-radius: 5px;
+            border-radius: 7px;
             box-sizing: border-box;
             color: #1b1b1b;
             display: flex;
@@ -87,8 +111,11 @@ export class FluentNavigationView extends CustomComponent {
         
         /* Icons */
         .nav-button .nav-icon {
+            color: var(--fill-text-primary);
             transition: transform .1s;
             transition-timing-function: ease-in;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .nav-button:active .nav-icon {
@@ -97,10 +124,11 @@ export class FluentNavigationView extends CustomComponent {
         
         /* Pane title */
         .pane-title {
+            color: var(--fill-text-primary);
             flex-grow: 1;
-            font-family: 'Segoe UI Variable Text', sans-serif;
+            font-family: 'Segoe UI Variable', sans-serif;
             font-size: 14px;
-            font-weight: 600;
+            font-variation-settings: 'wght' 600, 'opsz' 20;
             line-height: 36px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -123,7 +151,8 @@ export class FluentNavigationView extends CustomComponent {
         }
 
         .content {
-            background-color: #fff;
+            background-color: var(--background-fill-layer-default);
+            border-top: 1px solid var(--stroke-card-default);
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -144,9 +173,10 @@ export class FluentNavigationView extends CustomComponent {
         }
         
         .content-title {
-            font-family: 'Segoe UI Variable Display', sans-serif;
+            color: var(--fill-text-primary);
+            font-family: 'Segoe UI Variable', sans-serif;
             font-size: 28px;
-            font-weight: 600;
+            font-variation-settings: 'wght' 600, 'opsz' 36;
             line-height: 48px;
             margin: 0;
         }
@@ -167,10 +197,6 @@ export class FluentNavigationView extends CustomComponent {
 
         /* Tablet */
         @media only screen and (min-width: 768px) {
-            :host {
-                background-color: #f2f2f2;
-            }
-
             .navigation-pane {
                 left: 0;
                 width: 47px;
@@ -181,10 +207,9 @@ export class FluentNavigationView extends CustomComponent {
             }
 
             .content {
-                background-color: #fff;
-                border-left: solid 1px #e5e5e5;
-                border-top: solid 1px #e5e5e5;
-                border-top-left-radius: 6px;
+                background-color: var(--background-fill-layer-default);
+                border-left: solid 1px var(--stroke-card-default);
+                border-top-left-radius: 7px;
             }
 
             .content-header {
@@ -203,16 +228,12 @@ export class FluentNavigationView extends CustomComponent {
             :host(:not(.leftcompact)) .navigation-pane {
                 position: relative;
             }
-            
-            :host(.expanded) .navigation-pane {
-                background-color: #f2f2f2;
-                -webkit-backdrop-filter: none;
-                backdrop-filter: none;
-            }
 
+            /* TODO: Refactor */
             :host(.expanded:not(.leftcompact)) .navigation-pane {
                 border: none;
                 border-radius: 0;
+                box-shadow: none;
             }
 
             :host(:not(.leftcompact)) .content-frame {
@@ -220,9 +241,9 @@ export class FluentNavigationView extends CustomComponent {
             }
         }
     `;
-    
+
     isExpanded: boolean;
-    
+
     private _navigationPane: HTMLDivElement;
     private _paneTitle: HTMLSpanElement;
     private _contentHeader: HTMLDivElement;
@@ -238,77 +259,87 @@ export class FluentNavigationView extends CustomComponent {
     }
 
     static get observedAttributes() {
-        return ["pane-display-mode", "header", "always-show-header", "pane-title", "is-settings-visible"];
+        return [
+            'pane-display-mode',
+            'header',
+            'always-show-header',
+            'pane-title',
+            'is-settings-visible',
+        ];
     }
 
     /* Attributes */
     get header() {
-        return this.getAttribute("header");
+        return this.getAttribute('header');
     }
 
     set header(value) {
-        this.setAttribute("header", value);
+        this.setAttribute('header', value);
     }
 
     get paneTitle() {
-        return this.getAttribute("pane-title") ?? "";
+        return this.getAttribute('pane-title') ?? '';
     }
 
     set paneTitle(value) {
-        this.setAttribute("pane-title", value);
+        this.setAttribute('pane-title', value);
     }
 
     get alwaysShowHeader() {
-        return this.getAttribute("always-show-header") !== "false";
+        return this.getAttribute('always-show-header') !== 'false';
     }
 
     set alwaysShowHeader(value: boolean) {
-        this.toggleAttribute("always-show-header", value);
+        this.toggleAttribute('always-show-header', value);
     }
 
     get isSettingsVisible() {
-        return this.getAttribute("is-settings-visible") !== "false";
+        return this.getAttribute('is-settings-visible') !== 'false';
     }
 
     set isSettingsVisible(value: boolean) {
-        this.toggleAttribute("is-settings-visible", value);
+        this.toggleAttribute('is-settings-visible', value);
     }
 
     /* DOM */
     get navigationPane() {
-        this._navigationPane ??= this.shadowRoot.querySelector(".navigation-pane");
+        this._navigationPane ??=
+            this.shadowRoot.querySelector('.navigation-pane');
         return this._navigationPane;
     }
 
     get items(): FluentNavigationViewItem[] {
-        const items = Array.from(this.querySelectorAll("fluent-navigation-view-item")) as FluentNavigationViewItem[];
+        const items = Array.from(
+            this.querySelectorAll('fluent-navigation-view-item')
+        ) as FluentNavigationViewItem[];
         items.push(this.settingsItem);
 
         return items;
     }
 
     get paneTitleSpan() {
-        this._paneTitle ??= this.shadowRoot.querySelector(".pane-title");
+        this._paneTitle ??= this.shadowRoot.querySelector('.pane-title');
         return this._paneTitle;
     }
 
     get contentHeader() {
-        this._contentHeader ??= this.shadowRoot.querySelector(".content-header");
+        this._contentHeader ??=
+            this.shadowRoot.querySelector('.content-header');
         return this._contentHeader;
     }
 
     get contentTitle() {
-        this._contentTitle ??= this.shadowRoot.querySelector(".content-title");
+        this._contentTitle ??= this.shadowRoot.querySelector('.content-title');
         return this._contentTitle;
     }
 
     get settingsItem() {
-        this._settingsItem ??= this.shadowRoot.querySelector(".settings-item");
+        this._settingsItem ??= this.shadowRoot.querySelector('.settings-item');
         return this._settingsItem;
     }
 
     get itemsSlot() {
-        this._itemsSlot ??= this.shadowRoot.querySelectorAll("slot")[0];
+        this._itemsSlot ??= this.shadowRoot.querySelectorAll('slot')[0];
         return this._itemsSlot;
     }
 
@@ -352,45 +383,46 @@ export class FluentNavigationView extends CustomComponent {
         this.setSettingsVisibility();
 
         // Nav button.
-        const navButton = this.shadowRoot.querySelector(".nav-button");
-        navButton.addEventListener("click", e => {
-            this.classList.toggle("expanded");
-            this.isExpanded = this.classList.contains("expanded");
+        const navButton = this.shadowRoot.querySelector('.nav-button');
+        navButton.addEventListener('click', e => {
+            this.classList.toggle('expanded');
+            this.isExpanded = this.classList.contains('expanded');
 
             const width = window.innerWidth;
             if (width < 768) {
                 anime({
                     targets: this.navigationPane,
-                    left: this.isExpanded ? "0px" : "-281px",
+                    left: this.isExpanded ? '0px' : '-281px',
                     duration: 150,
-                    easing: "easeInOutQuad"
+                    easing: 'easeInOutQuad',
                 });
             } else if (width >= 768) {
                 anime({
                     targets: this.navigationPane,
-                    width: this.isExpanded ? "280px" : "47px",
+                    width: this.isExpanded ? '280px' : '47px',
                     duration: 150,
-                    easing: "easeInOutQuad"
+                    easing: 'easeInOutQuad',
                 });
             }
 
-            this.dispatchEvent(new CustomEvent("invoked"));
+            this.dispatchEvent(new CustomEvent('invoked'));
             e.stopPropagation();
         });
 
         // Nav pane.
-        const navPane = this.shadowRoot.querySelector(".navigation-pane");
-        navPane.addEventListener("click", e => e.stopPropagation());
-        
-        this.itemsSlot.addEventListener("slotchange", () => {
+        const navPane = this.shadowRoot.querySelector('.navigation-pane');
+        navPane.addEventListener('click', e => e.stopPropagation());
+
+        this.itemsSlot.addEventListener('slotchange', () => {
             var menuItem = this.itemsSlot.assignedElements()[0];
 
-            menuItem.addEventListener("itemschange", () => {
+            menuItem.addEventListener('itemschange', () => {
                 this.items.forEach(item => {
-                    item.addEventListener("selected", () => this.onItemSelected(item));
-                    item.addEventListener("invoked", () => {
-                        if (!item.isParent)
-                            this.dismissPane();
+                    item.addEventListener('selected', () =>
+                        this.onItemSelected(item)
+                    );
+                    item.addEventListener('invoked', () => {
+                        if (!item.isParent) this.dismissPane();
                     });
                 });
 
@@ -399,77 +431,91 @@ export class FluentNavigationView extends CustomComponent {
             });
         });
 
-        window.addEventListener("click", () => {
+        window.addEventListener('click', () => {
             this.dismissPane();
 
-            this.activeMenuItem?.classList?.remove("expanded");
-            this.activeMenuItem?.parentItem.classList.remove("expanded");
+            this.activeMenuItem?.classList?.remove('expanded');
+            this.activeMenuItem?.parentItem.classList.remove('expanded');
         });
 
-        window.addEventListener("resize", e => {
+        window.addEventListener('resize', e => {
             const width = window.innerWidth;
             const style = this.navigationPane.style;
-            const mode = this.getAttribute("pane-display-mode");
+            const mode = this.getAttribute('pane-display-mode');
 
             if (width < 768) {
-                style.left = "-281px";
-                style.width = "280px";
-            }
-            else if (width >= 768) {
-                style.left = "0px";
-                style.width = width >= 992 && mode === "left" && this.isExpanded ? "280px" : "47px";
+                style.left = '-281px';
+                style.width = '280px';
+            } else if (width >= 768) {
+                style.left = '0px';
+                style.width =
+                    width >= 992 && mode === 'left' && this.isExpanded
+                        ? '280px'
+                        : '47px';
             }
 
             if (width < 992) {
-                this.classList.toggle("expanded", false);
-                this.dispatchEvent(new CustomEvent("invoked"));
+                this.classList.toggle('expanded', false);
+                this.dispatchEvent(new CustomEvent('invoked'));
             } else {
-                this.classList.toggle("expanded", mode === "left" && this.isExpanded);
-                this.dispatchEvent(new CustomEvent("invoked"));
+                this.classList.toggle(
+                    'expanded',
+                    mode === 'left' && this.isExpanded
+                );
+                this.dispatchEvent(new CustomEvent('invoked'));
             }
         });
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
         switch (name) {
-            case "header":
-            case "always-show-header":
+            case 'header':
+            case 'always-show-header':
                 this.setHeader();
                 break;
-            case "pane-display-mode": this.setDisplayMode(oldValue); break;
-            case "pane-title": this.setPaneTitle(); break;
-            case "is-settings-visible": this.setSettingsVisibility(); break;
+            case 'pane-display-mode':
+                this.setDisplayMode(oldValue);
+                break;
+            case 'pane-title':
+                this.setPaneTitle();
+                break;
+            case 'is-settings-visible':
+                this.setSettingsVisibility();
+                break;
         }
     }
 
     /* Functions */
     setDisplayMode(old?: string) {
-        const mode = this.getAttribute("pane-display-mode");
+        const mode = this.getAttribute('pane-display-mode');
 
-        this.classList.add(mode ?? "leftcompact");
+        this.classList.add(mode ?? 'leftcompact');
         this.classList.toggle(old, old === mode);
 
-        this.isExpanded = mode === "left" && window.innerWidth > 992;
-        this.classList.toggle("expanded", this.isExpanded);
+        this.isExpanded = mode === 'left' && window.innerWidth > 992;
+        this.classList.toggle('expanded', this.isExpanded);
 
-        if (this.isExpanded)
-            this.navigationPane.style.width = "280px";
+        if (this.isExpanded) this.navigationPane.style.width = '280px';
 
-        this.dispatchEvent(new CustomEvent("invoked"));
+        this.dispatchEvent(new CustomEvent('invoked'));
     }
 
     setHeader() {
         this.contentTitle.textContent = this.header;
-        this.contentHeader.style.display = this.alwaysShowHeader ? "flex" : "none";
+        this.contentHeader.style.display = this.alwaysShowHeader
+            ? 'flex'
+            : 'none';
     }
 
     setPaneTitle() {
         this.paneTitleSpan.textContent = this.paneTitle;
-        this.classList.toggle("no-title", this.paneTitle === "");
+        this.classList.toggle('no-title', this.paneTitle === '');
     }
 
     setSettingsVisibility() {
-        this.settingsItem.style.display = this.isSettingsVisible ? "flex" : "none";
+        this.settingsItem.style.display = this.isSettingsVisible
+            ? 'flex'
+            : 'none';
     }
 
     navigate(href) {
@@ -479,15 +525,20 @@ export class FluentNavigationView extends CustomComponent {
                 let itemHref = new URL(item.href, href).href;
 
                 // Cleanup.
-                if (targetHref.endsWith("/")) targetHref = targetHref.slice(0, -1);
-                if (itemHref.endsWith("/")) itemHref = itemHref.slice(0, -1);
+                if (targetHref.endsWith('/'))
+                    targetHref = targetHref.slice(0, -1);
+                if (itemHref.endsWith('/')) itemHref = itemHref.slice(0, -1);
 
-                if (this.hasAttribute("selects-on-load") && itemHref === targetHref) {
+                if (
+                    this.hasAttribute('selects-on-load') &&
+                    itemHref === targetHref
+                ) {
                     item.setSelected(true);
                     this.toggleSelection(item);
 
-                    const headerSrc = this.getAttribute("header-src") ?? "content";
-                    this.setAttribute("header", item.getAttribute(headerSrc));
+                    const headerSrc =
+                        this.getAttribute('header-src') ?? 'content';
+                    this.setAttribute('header', item.getAttribute(headerSrc));
 
                     return false;
                 }
@@ -502,10 +553,13 @@ export class FluentNavigationView extends CustomComponent {
             sender: this,
             args: {
                 isSettingsSelected: item === this._settingsItem,
-                selectedItem: item
-            }
+                selectedItem: item,
+            },
         };
-        const event = new CustomEvent('selectionchanged', { bubbles: true, detail: eventDetails });
+        const event = new CustomEvent('selectionchanged', {
+            bubbles: true,
+            detail: eventDetails,
+        });
 
         this.toggleSelection(item);
         this.dispatchEvent(event);
@@ -513,7 +567,7 @@ export class FluentNavigationView extends CustomComponent {
 
     toggleSelection(item) {
         if (this._selectedItem !== item)
-            this._selectedItem?.classList.remove("active");
+            this._selectedItem?.classList.remove('active');
 
         this._selectedItem = item;
     }
@@ -521,16 +575,19 @@ export class FluentNavigationView extends CustomComponent {
     dismissPane() {
         const classes = this.classList;
 
-        if ((classes.contains("leftcompact") || window.innerWidth < 768) && classes.contains("expanded")) {
-            this.classList.remove("expanded");
-            this.dispatchEvent(new CustomEvent("invoked"));
+        if (
+            (classes.contains('leftcompact') || window.innerWidth < 768) &&
+            classes.contains('expanded')
+        ) {
+            this.classList.remove('expanded');
+            this.dispatchEvent(new CustomEvent('invoked'));
 
             if (window.innerWidth < 768)
                 anime({
                     targets: this.navigationPane,
-                    left: "-281px",
+                    left: '-281px',
                     duration: 150,
-                    easing: "easeInOutQuad"
+                    easing: 'easeInOutQuad',
                 });
         }
     }

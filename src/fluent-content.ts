@@ -5,6 +5,14 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
     static customElement = 'fluent-navigation-view-item-header';
     static styles = `
         :host {
+            --fill-text-secondary: rgb(0 0 0 / 60.63%);
+        }
+
+        :host([data-color-scheme=dark]) {
+            --fill-text-secondary: rgb(255 255 255 / 78.6%);
+        }
+
+        :host {
             align-items: center;
             box-sizing: border-box;
             display: flex;
@@ -16,10 +24,10 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
         }
 
         :host .content {
-            color: #5d5d5d;
-            font-family: 'Segoe UI Variable Text', sans-serif;
+            color: var(--fill-text-secondary);
+            font-family: 'Segoe UI Variable', sans-serif;
             font-size: 14px;
-            font-weight: 600;
+            font-variation-settings: 'wght' 600, 'opsz' 20;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -54,7 +62,7 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
 
     /* DOM */
     get parentView() {
-        this._parentView ??= this.closest("fluent-navigation-view");
+        this._parentView ??= this.closest('fluent-navigation-view');
         return this._parentView;
     }
 
@@ -66,16 +74,19 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
     }
 
     connectedCallback() {
-        const content = this.shadowRoot.querySelector("span.content");
-        content.textContent = this.getAttribute("content");
+        const content = this.shadowRoot.querySelector('span.content');
+        content.textContent = this.getAttribute('content');
 
         this.toggleVisibility();
-        this.parentView.addEventListener("invoked", this.toggleVisibility);
+        this.parentView.addEventListener('invoked', this.toggleVisibility);
     }
 
     /* Functions */
     toggleVisibility() {
-        this.classList.toggle("visible", this.parentView.classList.contains("expanded"));
+        this.classList.toggle(
+            'visible',
+            this.parentView.classList.contains('expanded')
+        );
     }
 }
 
@@ -91,7 +102,7 @@ export class FluentNavigationViewHeaderContent extends CustomComponent {
     }
 
     connectedCallback() {
-        this.setAttribute("slot", "header-content");
+        this.setAttribute('slot', 'header-content');
     }
 }
 
@@ -107,6 +118,6 @@ export class FluentNavigationViewContentFrame extends CustomComponent {
     }
 
     connectedCallback() {
-        this.setAttribute("slot", "content-frame");
+        this.setAttribute('slot', 'content-frame');
     }
 }

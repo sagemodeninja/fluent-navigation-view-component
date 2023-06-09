@@ -1,5 +1,7 @@
+import colorSchemeProvider from '@sagemodeninja/color-scheme-provider';
+
 export class ComponentRegistry {
-    static templates: {[name: string]: HTMLTemplateElement} = {};
+    static templates: { [name: string]: HTMLTemplateElement } = {};
 
     static createRegistry() {
         return new ComponentRegistry();
@@ -28,16 +30,21 @@ export class CustomComponent extends HTMLElement {
     constructor() {
         super();
 
-        this.attachShadow({mode: 'open'});
+        this.attachShadow({ mode: 'open' });
         this.shadowRoot.appendChild(this.template.content.cloneNode(true));
         this.shadowRoot.append(...this.dom);
+
+        this.dataset.colorScheme = colorSchemeProvider.colorScheme;
+        colorSchemeProvider.subscribeNotification(() => {
+            this.dataset.colorScheme = colorSchemeProvider.colorScheme;
+        });
     }
 
     get template() {
         const constructor = Object.getPrototypeOf(this).constructor;
         return ComponentRegistry.templates[constructor.customElement];
     }
-    
+
     get dom() {
         const parser = new DOMParser();
         const content = parser.parseFromString(this.render(), 'text/html');
