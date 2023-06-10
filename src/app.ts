@@ -93,8 +93,5 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    toggleTheme.addEventListener('click', () => {
-        colorSchemeProvider.preferredColorScheme =
-            colorSchemeProvider.colorScheme === 'dark' ? 'light' : 'dark';
-    });
+    toggleTheme.addEventListener('click', () => colorSchemeProvider.toggle());
 });
