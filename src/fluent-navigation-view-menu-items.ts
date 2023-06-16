@@ -1,24 +1,11 @@
-import { CustomComponent } from './core';
+import { CustomComponent, customComponent } from '@sagemodeninja/custom-component';
 import { FluentNavigationView } from './fluent-navigation-view';
 import { FluentNavigationViewItem } from './fluent-navigation-view-item';
+import { DesignToken } from '@sagemodeninja/design-token-provider';
 
+@customComponent('fluent-navigation-view-menu-items')
 export class FluentNavigationViewMenuItems extends CustomComponent {
-    static customElement = 'fluent-navigation-view-menu-items';
     static styles = `
-        :host {
-            --background-color: #f3f3f3;
-            --background-color-gradient: rgb(243 243 243 / 50%);
-            --navigation-pane-shadow: rgb(0 0 0 / 14%);
-            --stroke-card-default: #e5e5e5;
-        }
-
-        :host([data-color-scheme=dark]) {
-            --background-color: #202020;
-            --background-color-gradient: rgb(32 32 32 / 80%);
-            --navigation-pane-shadow: rgb(0 0 0 / 26%);
-            --stroke-card-default: rgb(255 255 255 / 8.37%);
-        }
-
         :host {
             border-radius: 7px;
             display: flex;
@@ -31,7 +18,7 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
 
         :host(.compact-mode) {
             border: solid 1px var(--stroke-card-default);
-            box-shadow: 0px 8px 16px var(--navigation-pane-shadow);
+            box-shadow: 0px 8px 16px var(--shadow-flyout);
             left: 54px;
             padding: 8px 0;
             position: fixed;
@@ -45,7 +32,7 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
 
         :host(.sub-menu-item.compact-mode.expanded)
         {
-            background: linear-gradient(0deg, var(--background-color-gradient), var(--background-color-gradient)), var(--background-color);
+            background-color: var(--background-fill-mica-base);
             background-blend-mode: color, luminosity;
             -webkit-backdrop-filter: saturate(180%) blur(100px);
             backdrop-filter: saturate(180%) blur(100px);
@@ -77,6 +64,16 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
         return this._itemsSlot;
     }
 
+    static setDefaultTokens(): void {
+        const backgroundFillMicaBase = new DesignToken<string>('background-fill-mica-base');
+        const strokeCardDefault = new DesignToken<string>('stroke-card-default');
+        const shadowFlyout = new DesignToken<string>('shadow-flyout');
+
+        backgroundFillMicaBase.setDefault('#f3f3f3', false);
+        strokeCardDefault.setDefault('#e5e5e5', false);
+        shadowFlyout.setDefault('rgb(0 0 0 / 14%)', false);
+    }
+
     render() {
         return '<slot></slot>';
     }
@@ -98,9 +95,7 @@ export class FluentNavigationViewMenuItems extends CustomComponent {
 
             this.parentItem.classList.toggle('expanded', expanded);
             this.parentView.activeMenuItem =
-                expanded && this.classList.contains('compact-mode')
-                    ? this
-                    : null;
+                expanded && this.classList.contains('compact-mode') ? this : null;
         });
 
         this.addEventListener('click', e => e.stopPropagation());

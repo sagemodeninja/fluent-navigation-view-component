@@ -1,20 +1,6 @@
+import { CustomComponent } from '@sagemodeninja/custom-component';
+
 declare module '@sagemodeninja/fluent-navigation-view-component' {
-    export class ComponentRegistry {
-        static createRegistry(): ComponentRegistry;
-        register(...component: (typeof CustomComponent)[]): void;
-    }
-
-    export class CustomComponent extends HTMLElement {
-        static customElement: string;
-        static styles?: string;
-        get template(): HTMLTemplateElement;
-        get dom(): HTMLCollection;
-        /**
-         * Returns the DOM string for this component.
-         */
-        render(): string;
-    }
-
     export class FluentNavigationView extends CustomComponent {
         isExpanded: boolean;
         /**

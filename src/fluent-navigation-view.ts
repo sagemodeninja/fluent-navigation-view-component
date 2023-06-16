@@ -1,34 +1,14 @@
 import anime from 'animejs/lib/anime.es.js';
-import { CustomComponent } from './core';
 import { FluentNavigationViewItem } from './fluent-navigation-view-item';
 import { FluentNavigationViewMenuItems } from './fluent-navigation-view-menu-items';
+import { CustomComponent, customComponent } from '@sagemodeninja/custom-component';
+import { DesignToken } from '@sagemodeninja/design-token-provider';
 
+@customComponent('fluent-navigation-view')
 export class FluentNavigationView extends CustomComponent {
-    static customElement = 'fluent-navigation-view';
     static styles = `
         :host {
-            --background-color: #f3f3f3;
-            --background-color-gradient: rgb(243 243 243 / 50%);
-            --background-fill-layer-default: rgb(255 255 255 / 50%);
-            --fill-text-primary: rgb(0 0 0 / 89.56%);
-            --navigation-pane-shadow: rgb(0 0 0 / 14%);
-            --stroke-card-default: #e5e5e5;
-        }
-
-        :host([data-color-scheme=dark]) {
-            --background-color: #202020;
-            --background-color-gradient: rgb(32 32 32 / 80%);
-            --background-fill-layer-default: rgb(58 58 58 / 30%);
-            --fill-text-primary: #ffffff;
-            --navigation-pane-shadow: rgb(0 0 0 / 26%);
-            --stroke-card-default: rgb(255 255 255 / 8.37%);
-
-            color-scheme: dark;
-        }
-
-        :host {
-            background: linear-gradient(0deg, var(--background-color-gradient), var(--background-color-gradient)), var(--background-color);
-            background-blend-mode: color, luminosity;
+            background-color: var(--background-fill-mica-base);
             display: flex;
             height: 100%;
             left: 0;
@@ -58,16 +38,13 @@ export class FluentNavigationView extends CustomComponent {
         }
 
         :host(.expanded) .navigation-pane {
-            background: linear-gradient(0deg, var(--background-color-gradient),
-                var(--background-color-gradient)), 
-                var(--background-color);
-            background-blend-mode: color, luminosity;
+            background: var(--background-fill-mica-base);
             -webkit-backdrop-filter: saturate(180%) blur(100px);
             backdrop-filter: saturate(180%) blur(100px);
             border-right: solid 1px var(--stroke-card-default);
             border-bottom-right-radius: 7px;
             border-top-right-radius: 7px;
-            box-shadow: 0px 8px 16px var(--navigation-pane-shadow);
+            box-shadow: 0px 8px 16px var(--shadow-flyout);
         }
         
         /* Button */
@@ -207,7 +184,6 @@ export class FluentNavigationView extends CustomComponent {
             }
 
             .content {
-                background-color: var(--background-fill-layer-default);
                 border-left: solid 1px var(--stroke-card-default);
                 border-top-left-radius: 7px;
             }
@@ -303,8 +279,7 @@ export class FluentNavigationView extends CustomComponent {
 
     /* DOM */
     get navigationPane() {
-        this._navigationPane ??=
-            this.shadowRoot.querySelector('.navigation-pane');
+        this._navigationPane ??= this.shadowRoot.querySelector('.navigation-pane');
         return this._navigationPane;
     }
 
@@ -323,8 +298,7 @@ export class FluentNavigationView extends CustomComponent {
     }
 
     get contentHeader() {
-        this._contentHeader ??=
-            this.shadowRoot.querySelector('.content-header');
+        this._contentHeader ??= this.shadowRoot.querySelector('.content-header');
         return this._contentHeader;
     }
 
@@ -349,6 +323,20 @@ export class FluentNavigationView extends CustomComponent {
 
     set activeMenuItem(value) {
         this._activeMenuItem = value;
+    }
+
+    static setDefaultTokens(): void {
+        const backgroundFillMicaBase = new DesignToken<string>('background-fill-mica-base');
+        const backgroundFillLayerDefault = new DesignToken<string>('background-fill-layer-default');
+        const fillTextPrimary = new DesignToken<string>('fill-text-primary');
+        const strokeCardDefault = new DesignToken<string>('stroke-card-default');
+        const shadowFlyout = new DesignToken<string>('shadow-flyout');
+
+        backgroundFillMicaBase.setDefault('#f3f3f3', false);
+        backgroundFillLayerDefault.setDefault('rgb(255 255 255 / 50%)', false);
+        fillTextPrimary.setDefault('rgb(0 0 0 / 89.56%)', false);
+        strokeCardDefault.setDefault('#e5e5e5', false);
+        shadowFlyout.setDefault('rgb(0 0 0 / 14%)', false);
     }
 
     render() {
@@ -418,9 +406,7 @@ export class FluentNavigationView extends CustomComponent {
 
             menuItem.addEventListener('itemschange', () => {
                 this.items.forEach(item => {
-                    item.addEventListener('selected', () =>
-                        this.onItemSelected(item)
-                    );
+                    item.addEventListener('selected', () => this.onItemSelected(item));
                     item.addEventListener('invoked', () => {
                         if (!item.isParent) this.dismissPane();
                     });
@@ -448,20 +434,14 @@ export class FluentNavigationView extends CustomComponent {
                 style.width = '280px';
             } else if (width >= 768) {
                 style.left = '0px';
-                style.width =
-                    width >= 992 && mode === 'left' && this.isExpanded
-                        ? '280px'
-                        : '47px';
+                style.width = width >= 992 && mode === 'left' && this.isExpanded ? '280px' : '47px';
             }
 
             if (width < 992) {
                 this.classList.toggle('expanded', false);
                 this.dispatchEvent(new CustomEvent('invoked'));
             } else {
-                this.classList.toggle(
-                    'expanded',
-                    mode === 'left' && this.isExpanded
-                );
+                this.classList.toggle('expanded', mode === 'left' && this.isExpanded);
                 this.dispatchEvent(new CustomEvent('invoked'));
             }
         });
@@ -502,9 +482,7 @@ export class FluentNavigationView extends CustomComponent {
 
     setHeader() {
         this.contentTitle.textContent = this.header;
-        this.contentHeader.style.display = this.alwaysShowHeader
-            ? 'flex'
-            : 'none';
+        this.contentHeader.style.display = this.alwaysShowHeader ? 'flex' : 'none';
     }
 
     setPaneTitle() {
@@ -513,9 +491,7 @@ export class FluentNavigationView extends CustomComponent {
     }
 
     setSettingsVisibility() {
-        this.settingsItem.style.display = this.isSettingsVisible
-            ? 'flex'
-            : 'none';
+        this.settingsItem.style.display = this.isSettingsVisible ? 'flex' : 'none';
     }
 
     navigate(href) {
@@ -525,19 +501,14 @@ export class FluentNavigationView extends CustomComponent {
                 let itemHref = new URL(item.href, href).href;
 
                 // Cleanup.
-                if (targetHref.endsWith('/'))
-                    targetHref = targetHref.slice(0, -1);
+                if (targetHref.endsWith('/')) targetHref = targetHref.slice(0, -1);
                 if (itemHref.endsWith('/')) itemHref = itemHref.slice(0, -1);
 
-                if (
-                    this.hasAttribute('selects-on-load') &&
-                    itemHref === targetHref
-                ) {
+                if (this.hasAttribute('selects-on-load') && itemHref === targetHref) {
                     item.setSelected(true);
                     this.toggleSelection(item);
 
-                    const headerSrc =
-                        this.getAttribute('header-src') ?? 'content';
+                    const headerSrc = this.getAttribute('header-src') ?? 'content';
                     this.setAttribute('header', item.getAttribute(headerSrc));
 
                     return false;
@@ -566,8 +537,7 @@ export class FluentNavigationView extends CustomComponent {
     }
 
     toggleSelection(item) {
-        if (this._selectedItem !== item)
-            this._selectedItem?.classList.remove('active');
+        if (this._selectedItem !== item) this._selectedItem?.classList.remove('active');
 
         this._selectedItem = item;
     }

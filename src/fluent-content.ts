@@ -1,17 +1,10 @@
-import { CustomComponent } from './core';
+import { CustomComponent, customComponent } from '@sagemodeninja/custom-component';
 import { FluentNavigationView } from './fluent-navigation-view';
+import { DesignToken } from '@sagemodeninja/design-token-provider';
 
+@customComponent('fluent-navigation-view-item-header')
 export class FluentNavigationViewItemHeader extends CustomComponent {
-    static customElement = 'fluent-navigation-view-item-header';
     static styles = `
-        :host {
-            --fill-text-secondary: rgb(0 0 0 / 60.63%);
-        }
-
-        :host([data-color-scheme=dark]) {
-            --fill-text-secondary: rgb(255 255 255 / 78.6%);
-        }
-
         :host {
             align-items: center;
             box-sizing: border-box;
@@ -66,6 +59,12 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
         return this._parentView;
     }
 
+    static setDefaultTokens(): void {
+        const fillTextSecondary = new DesignToken<string>('fill-text-secondary');
+
+        fillTextSecondary.setDefault('rgb(0 0 0 / 60.63%)', false);
+    }
+
     render() {
         return `
         <span class='content'></span>
@@ -83,16 +82,12 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
 
     /* Functions */
     toggleVisibility() {
-        this.classList.toggle(
-            'visible',
-            this.parentView.classList.contains('expanded')
-        );
+        this.classList.toggle('visible', this.parentView.classList.contains('expanded'));
     }
 }
 
+@customComponent('fluent-navigation-view-header-content')
 export class FluentNavigationViewHeaderContent extends CustomComponent {
-    static customElement = 'fluent-navigation-view-header-content';
-
     constructor() {
         super();
     }
@@ -106,9 +101,8 @@ export class FluentNavigationViewHeaderContent extends CustomComponent {
     }
 }
 
+@customComponent('fluent-navigation-view-content-frame')
 export class FluentNavigationViewContentFrame extends CustomComponent {
-    static customElement = 'fluent-navigation-view-content-frame';
-
     constructor() {
         super();
     }
