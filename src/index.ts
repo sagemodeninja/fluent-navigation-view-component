@@ -1,9 +1,4 @@
-export { ComponentRegistry, CustomComponent } from './core';
-export { FluentNavigationView } from './fluent-navigation-view';
-export { FluentNavigationViewItem } from './fluent-navigation-view-item';
-export { FluentNavigationViewMenuItems } from './fluent-navigation-view-menu-items';
-export {
-    FluentNavigationViewItemHeader,
-    FluentNavigationViewHeaderContent,
-    FluentNavigationViewContentFrame,
-} from './fluent-content';
+export * from './fluent-navigation-view';
+export * from './fluent-navigation-view-item';
+export * from './fluent-navigation-view-menu-items';
+export * from './fluent-content';

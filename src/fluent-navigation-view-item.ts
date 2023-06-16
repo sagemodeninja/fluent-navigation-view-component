@@ -1,26 +1,11 @@
-import { CustomComponent } from './core';
+import { CustomComponent, customComponent } from '@sagemodeninja/custom-component';
 import { FluentNavigationView } from './fluent-navigation-view';
 import { FluentNavigationViewMenuItems } from './fluent-navigation-view-menu-items';
+import { DesignToken } from '@sagemodeninja/design-token-provider';
 
+@customComponent('fluent-navigation-view-item')
 export class FluentNavigationViewItem extends CustomComponent {
-    static customElement = 'fluent-navigation-view-item';
     static styles = `
-        :host {
-            --fill-accent-default: #005FB8;
-            --fill-subtle-secondary: rgb(0 0 0 / 3.73%);
-            --fill-subtle-tertiary: rgb(0 0 0 / 2.41%);
-            --fill-text-primary: rgb(0 0 0 / 89.56%);
-            --fill-text-secondary: rgb(0 0 0 / 60.63%);
-        }
-
-        :host([data-color-scheme=dark]) {
-            --fill-accent-default: #60CDFF;
-            --fill-subtle-secondary: rgb(255 255 255 / 6.05%);
-            --fill-subtle-tertiary: rgb(255 255 255 / 4.19%);
-            --fill-text-primary: #ffffff;
-            --fill-text-secondary: rgb(255 255 255 / 78.6%);
-        }
-
         :host {
             cursor: default;
             display: flex;
@@ -183,9 +168,7 @@ export class FluentNavigationViewItem extends CustomComponent {
     }
 
     get subMenu() {
-        this._subMenu ??= this.querySelector(
-            'fluent-navigation-view-menu-items'
-        );
+        this._subMenu ??= this.querySelector('fluent-navigation-view-menu-items');
         return this._subMenu;
     }
 
@@ -200,8 +183,7 @@ export class FluentNavigationViewItem extends CustomComponent {
     }
 
     get customIconSlot() {
-        this._customIconSpan ??=
-            this.shadowRoot.querySelector('slot[name=icon]');
+        this._customIconSpan ??= this.shadowRoot.querySelector('slot[name=icon]');
         return this._customIconSpan;
     }
 
@@ -218,6 +200,20 @@ export class FluentNavigationViewItem extends CustomComponent {
     get selectsOnInvoke() {
         const selectsOnInvoke = eval(this.getAttribute('selects-on-invoke'));
         return selectsOnInvoke == null || selectsOnInvoke;
+    }
+
+    static setDefaultTokens(): void {
+        const fillAccentDefault = new DesignToken<string>('fill-accent-default');
+        const fillSubtleSecondary = new DesignToken<string>('fill-subtle-secondary');
+        const fillSubtleTertiary = new DesignToken<string>('fill-subtle-tertiary');
+        const fillTextPrimary = new DesignToken<string>('fill-text-primary');
+        const fillTextSecondary = new DesignToken<string>('fill-text-secondary');
+
+        fillAccentDefault.setDefault('#005FB8', false);
+        fillSubtleSecondary.setDefault('rgb(0 0 0 / 3.73%)', false);
+        fillSubtleTertiary.setDefault('rgb(0 0 0 / 2.41%)', false);
+        fillTextPrimary.setDefault('rgb(0 0 0 / 89.56%)', false);
+        fillTextSecondary.setDefault('rgb(0 0 0 / 60.63%)', false);
     }
 
     render() {
@@ -237,14 +233,10 @@ export class FluentNavigationViewItem extends CustomComponent {
         this.setContent();
 
         // Chevron.
-        customElements
-            .whenDefined('fluent-navigation-view-menu-items')
-            .then(_ => {
-                const chevron = this.shadowRoot.querySelector(
-                    '.chevron'
-                ) as HTMLSpanElement;
-                chevron.style.display = this.subMenu ? 'block' : 'none';
-            });
+        customElements.whenDefined('fluent-navigation-view-menu-items').then(_ => {
+            const chevron = this.shadowRoot.querySelector('.chevron') as HTMLSpanElement;
+            chevron.style.display = this.subMenu ? 'block' : 'none';
+        });
 
         // Sub-item offset.
         if (this.parentMenu) {
@@ -258,13 +250,9 @@ export class FluentNavigationViewItem extends CustomComponent {
 
             // Collapse active menu.
             var activeMenu = this.parentView.activeMenuItem;
-            var isParentExpanded =
-                this.parentView.classList.contains('expanded');
+            var isParentExpanded = this.parentView.classList.contains('expanded');
 
-            if (
-                !isParentExpanded &&
-                (this.subMenu === null || activeMenu !== this.subMenu)
-            ) {
+            if (!isParentExpanded && (this.subMenu === null || activeMenu !== this.subMenu)) {
                 activeMenu?.classList?.remove('expanded');
                 activeMenu?.parentItem.classList.remove('expanded');
             }
@@ -272,20 +260,14 @@ export class FluentNavigationViewItem extends CustomComponent {
             // Events.
             this.dispatchEvent(new CustomEvent('invoked'));
 
-            if (this.selectsOnInvoke)
-                this.dispatchEvent(new CustomEvent('selected'));
+            if (this.selectsOnInvoke) this.dispatchEvent(new CustomEvent('selected'));
         });
 
         this.customIconSlot.addEventListener('slotchange', e => {
-            const hasCustomIcons =
-                this.customIconSlot.assignedNodes().length > 0;
+            const hasCustomIcons = this.customIconSlot.assignedNodes().length > 0;
 
-            this.iconSpan.style.display = hasCustomIcons
-                ? 'none'
-                : 'inline-block';
-            this.customIconSlot.style.display = hasCustomIcons
-                ? 'default'
-                : 'none';
+            this.iconSpan.style.display = hasCustomIcons ? 'none' : 'inline-block';
+            this.customIconSlot.style.display = hasCustomIcons ? 'default' : 'none';
         });
     }
 
@@ -310,19 +292,13 @@ export class FluentNavigationViewItem extends CustomComponent {
     }
 
     toggleOffset() {
-        this.classList.toggle(
-            'with-offset',
-            this.parentView.classList.contains('expanded')
-        );
+        this.classList.toggle('with-offset', this.parentView.classList.contains('expanded'));
     }
 
     setSelected(selected) {
         this.classList.toggle('active', selected && this.selectsOnInvoke);
 
         const isParentExpanded = this.parentView.classList.contains('expanded');
-        this.parentMenu?.classList.toggle(
-            'expanded',
-            selected && isParentExpanded
-        );
+        this.parentMenu?.classList.toggle('expanded', selected && isParentExpanded);
     }
 }

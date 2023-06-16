@@ -4,7 +4,7 @@
         "module": "ES2015",
         "outDir": "dist",
         "moduleResolution": "node",
-        "allowSyntheticDefaultImports": false
+        "experimentalDecorators": true
     },
     "include": ["src/**/*"]
 }
