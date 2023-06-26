@@ -402,9 +402,8 @@ export class FluentNavigationView extends CustomComponent {
         navPane.addEventListener('click', e => e.stopPropagation());
 
         this.itemsSlot.addEventListener('slotchange', () => {
-            var menuItem = this.itemsSlot.assignedElements()[0];
-
-            menuItem.addEventListener('itemschange', () => {
+            const menuItem = this.itemsSlot.assignedElements()[0];
+            const attachItemListeners = () => {
                 this.items.forEach(item => {
                     item.addEventListener('selected', () => this.onItemSelected(item));
                     item.addEventListener('invoked', () => {
@@ -414,7 +413,10 @@ export class FluentNavigationView extends CustomComponent {
 
                 // Selects an item on load by href.
                 this.navigate(window.location.toString());
-            });
+            };
+
+            attachItemListeners();
+            menuItem.addEventListener('slotchange', attachItemListeners);
         });
 
         window.addEventListener('click', () => {
