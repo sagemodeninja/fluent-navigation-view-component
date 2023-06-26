@@ -1,6 +1,6 @@
 {
     "name": "@sagemodeninja/fluent-navigation-view-component",
-    "version": "2.3.1-beta.7",
+    "version": "2.3.1-beta.15",
     "description": "Web component implementation of Windows 11's Navigation View",
     "main": "dist/fluent-navigation-view-component.js",
     "types": "src/@types/fluent-navigation-view-component.d.ts",
