@@ -88,30 +88,50 @@ export class FluentNavigationViewItemHeader extends CustomComponent {
 
 @customComponent('fluent-navigation-view-header-content')
 export class FluentNavigationViewHeaderContent extends CustomComponent {
+    static styles = `
+        :host {
+            align-items: center;
+            display: flex;
+            flex-grow: 1;
+            margin-left: 10px;
+            min-width: 0;
+            transition: height .3s;
+        }
+    `;
+
     constructor() {
         super();
+        this.setAttribute('slot', 'header-content');
     }
 
     render() {
         return '<slot></slot>';
-    }
-
-    connectedCallback() {
-        this.setAttribute('slot', 'header-content');
     }
 }
 
 @customComponent('fluent-navigation-view-content-frame')
 export class FluentNavigationViewContentFrame extends CustomComponent {
+    static styles = `
+        :host {
+            height: calc(100% - 48px);
+            overflow: auto;
+            width: 100%;
+        }
+
+        /* Tablet */
+        @media only screen and (min-width: 768px) {
+            :host {
+                height: calc(100% - 80px);
+            }
+        }
+    `;
+
     constructor() {
         super();
+        this.setAttribute('slot', 'content-frame');
     }
 
     render() {
         return '<slot></slot>';
-    }
-
-    connectedCallback() {
-        this.setAttribute('slot', 'content-frame');
     }
 }
