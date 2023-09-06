@@ -158,20 +158,6 @@ export class FluentNavigationView extends CustomComponent {
             margin: 0;
         }
 
-        ::slotted(fluent-navigation-view-header-content) {
-            align-items: center;
-            display: flex;
-            flex-grow: 1;
-            margin-left: 10px;
-            transition: height .3s;
-        }
-
-        ::slotted(fluent-navigation-view-content-frame) {
-            height: calc(100% - 48px);
-            overflow: auto;
-            width: 100%;
-        }
-
         /* Tablet */
         @media only screen and (min-width: 768px) {
             .navigation-pane {
@@ -192,10 +178,6 @@ export class FluentNavigationView extends CustomComponent {
                 height: 80px;
                 padding-left: 40px;
                 padding-top: 32px;
-            }
-
-            ::slotted(fluent-navigation-view-content-frame) {
-                height: calc(100% - 80px);
             }
         }
 
